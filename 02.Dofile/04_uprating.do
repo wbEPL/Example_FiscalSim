@@ -9,7 +9,7 @@ import excel using "$xls_tool", sheet(uprating)  first clear
 	}
 
 * Nowcasting of weights (adjust for population growth)
-use "${data}\proc\Example_FiscalSim_dem_data_SY.dta" , clear
+use "${data}\01.pre-simulation\Example_FiscalSim_dem_data_SY.dta" , clear
 
 * simple way to adjust for population growth
 foreach var in ind_weight hh_weight {
@@ -17,11 +17,11 @@ foreach var in ind_weight hh_weight {
 }
 
 isid hh_id p_id
-save "${data}\proc\Example_FiscalSim_dem_data_PY.dta", replace
+save "${data}\02.intermediate\Example_FiscalSim_dem_data_PY.dta", replace
 
 
 * Nowcasting of market incomes
-use "${data}\proc\Example_FiscalSim_market_income_data_SY.dta", clear
+use "${data}\01.pre-simulation\Example_FiscalSim_market_income_data_SY.dta", clear
 
 * incomes may be uprated using different factors
 foreach var in wage self_inc {
@@ -32,4 +32,4 @@ foreach var in cap_income agri_inc priv_trans {
 	replace `var' = `var' * ${other_income_uprating}
 }
 
-save "${data}\proc\Example_FiscalSim_market_income_data_PY.dta", replace
+save "${data}\02.intermediate\Example_FiscalSim_market_income_data_PY.dta", replace

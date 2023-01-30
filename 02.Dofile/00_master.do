@@ -66,11 +66,13 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 
 	
 	*Pre-simulation stage (needs to be run only once to get the input data)
+
 	do "${thedo}\01_input_data.do"
 	do "${thedo}\02_market_income.do"
 	do "${thedo}\03_gross_expenditures.do"
 	
 	*Simulation stage (needs to be run for every scneario)
+	
 	do "${thedo}\04_uprating.do"
 	do "${thedo}\05_SSC_direct_taxes.do"
 	do "${thedo}\06_pensions_direct_transfers.do"
@@ -80,4 +82,5 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 	do "${thedo}\10_income_concepts.do"
 	
 	*Post-simulation stage (needs to be run for every scneario)
+	
 	do "${thedo}\11_output.do"

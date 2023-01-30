@@ -63,12 +63,6 @@ label variable povline_nat "National poverty line per capita for 12 months"
 label variable povline_int32 "International povert line 3.2 USD/day in 2011 PPP, annualized"
 label variable povline_int55 "International povert line 5.5 USD/day in 2011 PPP, annualized"
 
-// Deleting from the presimulation folder any old data
-local tmp_1: dir "${data}\01.pre-simulation" files "*.dta"
-foreach tmpf in `tmp_2' {
-	erase "${data}\01.pre-simulation\`tmpf'"
-}
-
 isid hh_id p_id
 save "${data}\01.pre-simulation\Example_FiscalSim_dem_inc_data.dta", replace
 

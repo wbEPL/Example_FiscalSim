@@ -21,8 +21,8 @@ import excel using "$xls_tool", sheet(check)  first clear
 		global `var' = `var'[1]
 	}
 
-use "${data}\proc\Example_FiscalSim_dem_inc_data.dta" , clear
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_market_income_data_PY.dta", nogen update replace
+use "${data}\01.pre-simulation\Example_FiscalSim_dem_inc_data.dta" , clear
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_market_income_data_PY.dta", nogen update replace
 
 * Here the order is opposite to grossing up!
 
@@ -74,4 +74,4 @@ mvencode ${SSC} ${direct_taxes}, mv(0) override
 
 isid hh_id p_id
 
-save "${data}\proc\Example_FiscalSim_SSC_direct_taxes_data.dta", replace
+save "${data}\02.intermediate\Example_FiscalSim_SSC_direct_taxes_data.dta", replace
