@@ -64,7 +64,7 @@ label variable povline_int32 "International povert line 3.2 USD/day in 2011 PPP,
 label variable povline_int55 "International povert line 5.5 USD/day in 2011 PPP, annualized"
 
 isid hh_id p_id
-save "${data}\proc\Example_FiscalSim_dem_inc_data.dta", replace
+save "${data}\01.pre-simulation\Example_FiscalSim_dem_inc_data.dta", replace
 
 keep hh_id p_id ${dem_list}
-save "${data}\proc\Example_FiscalSim_dem_data_SY.dta", replace
+save "${data}\01.pre-simulation\Example_FiscalSim_dem_data_SY.dta", replace

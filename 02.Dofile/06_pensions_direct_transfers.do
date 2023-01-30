@@ -9,9 +9,9 @@ import excel using "$xls_tool", sheet(transfers)  first clear //PIT
 
 
 
-use "${data}\proc\Example_FiscalSim_dem_inc_data.dta" , clear
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_market_income_data_PY.dta", nogen assert(match) 
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_SSC_direct_taxes_data.dta", nogen assert(match) 
+use "${data}\01.pre-simulation\Example_FiscalSim_dem_inc_data.dta" , clear
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_market_income_data_PY.dta", nogen assert(match) 
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_SSC_direct_taxes_data.dta", nogen assert(match) 
 
 egen double pens_other_trans_orig = rowtotal(${pensions} soc_pens other_ben)
 
@@ -83,5 +83,5 @@ mvencode ${pensions} ${direct_transfers} pens_trans_orig, mv(0) override
 
 isid hh_id p_id
 
-save "${data}\proc\Example_FiscalSim_pensions_direct_transfers_data.dta", replace
+save "${data}\02.intermediate\Example_FiscalSim_pensions_direct_transfers_data.dta", replace
 

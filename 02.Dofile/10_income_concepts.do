@@ -2,19 +2,19 @@
 * INCOME CONCEPTS: merging together
 ********************************************************************************
 clear
-use "${data}\proc\Example_FiscalSim_dem_data_PY.dta"
+use "${data}\02.intermediate\Example_FiscalSim_dem_data_PY.dta"
 
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_market_income_data_PY.dta", nogen
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_market_income_data_PY.dta", nogen
 
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_SSC_direct_taxes_data.dta", nogen
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_SSC_direct_taxes_data.dta", nogen
 
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_pensions_direct_transfers_data.dta", nogen
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_pensions_direct_transfers_data.dta", nogen
 
-merge m:1 hh_id using "${data}\proc\Example_FiscalSim_indirect_taxes_data.dta", nogen
+merge m:1 hh_id using "${data}\02.intermediate\Example_FiscalSim_indirect_taxes_data.dta", nogen
 
-merge m:1 hh_id using "${data}\proc\Example_FiscalSim_indirect_subsidies_data.dta", nogen
+merge m:1 hh_id using "${data}\02.intermediate\Example_FiscalSim_indirect_subsidies_data.dta", nogen
 
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_inkind_transefrs_data.dta", nogen
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_inkind_transefrs_data.dta", nogen
 
 global program_list 
 foreach aggregate in market_income $comp_list {
@@ -75,4 +75,4 @@ isid hh_id p_id
 keep  hh_id p_id ${dem_list} ${income_list} ${comp_list} ${program_list}
 order hh_id p_id ${dem_list} ${income_list} ${comp_list} ${program_list}
 
-save "${data}\proc\Example_FiscalSim_output_data.dta", replace
+save "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", replace

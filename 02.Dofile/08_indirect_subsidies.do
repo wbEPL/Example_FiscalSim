@@ -10,7 +10,7 @@ import excel using "$xls_tool", sheet(subsidy)  first clear
 		}
 
 
-use "${data}\proc\Example_FiscalSim_electr_data.dta", clear
+use "${data}\01.pre-simulation\Example_FiscalSim_electr_data.dta", clear
 
 * we assume that the industrial consumers pay full electricity tariff, that is why there is no indirect effect. We estimate the direct effect households only
 
@@ -39,4 +39,4 @@ keep hh_id ${indirect_subsidies}
 mvencode ${indirect_subsidies}, mv(0) override 
 
 isid hh_id 
-save "${data}\proc\Example_FiscalSim_indirect_subsidies_data.dta", replace
+save "${data}\02.intermediate\Example_FiscalSim_indirect_subsidies_data.dta", replace

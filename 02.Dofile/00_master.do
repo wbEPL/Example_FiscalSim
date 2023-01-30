@@ -8,22 +8,25 @@
 	
 	*Please change this to your own path
 	if "`c(username)'" == "WB395877" {
-		global path1 "C:\Users\wb395877\OneDrive - WBG\Equity_Policy_Lab\OTHER\Example_tools\FiscalSim\Example_FiscalSim" 
-		global path2 "C:\Users\wb395877\GitHub\Example_FiscalSim" 
+		global path "C:\Users\wb395877\GitHub\Example_FiscalSim" 
 	}
+	
+	else if "`c(username)'" == "wb532966" {
+		global path "C:\Users\wb532966\CEQ\Example_FiscalSim" // PUT YOU PATH HERE!!!
+	} 
 	
 	else if "`c(username)'" == "" {
 		global path "" // PUT YOU PATH HERE!!!
-	} 
+	}
 	
 
 *===============================================================================
 		*DO NOT MODIFY BEYOND THIS POINT
 *===============================================================================		
-	global data 	 "${path1}\01.Data"    
-	global thedo     "${path2}\02.Dofile"            
+	global data 	 "${path}\01.Data"    
+	global thedo     "${path}\02.Dofile"            
 	global theado    "${thedo}\ados"	     
-	global xls_tool  "${path2}\03.Tool\Example_FiscalSim.xlsx"
+	global xls_tool  "${path}\03.Tool\Example_FiscalSim.xlsx"
 *===============================================================================
 		*Run necessary ado files
 *===============================================================================
@@ -63,11 +66,13 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 
 	
 	*Pre-simulation stage (needs to be run only once to get the input data)
+
 	do "${thedo}\01_input_data.do"
 	do "${thedo}\02_market_income.do"
 	do "${thedo}\03_gross_expenditures.do"
 	
 	*Simulation stage (needs to be run for every scneario)
+	
 	do "${thedo}\04_uprating.do"
 	do "${thedo}\05_SSC_direct_taxes.do"
 	do "${thedo}\06_pensions_direct_transfers.do"
@@ -77,4 +82,5 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 	do "${thedo}\10_income_concepts.do"
 	
 	*Post-simulation stage (needs to be run for every scneario)
+	
 	do "${thedo}\11_output.do"

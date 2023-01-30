@@ -26,10 +26,10 @@ tempfile rates_PY
 save `rates_PY', replace
 
 
-use "${data}\proc\Example_FiscalSim_market_income_data_PY.dta", clear
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_dem_data_PY.dta", nogen assert(match) keepusing(hh_size)
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_SSC_direct_taxes_data.dta", nogen assert(match)
-merge 1:1 hh_id p_id using "${data}\proc\Example_FiscalSim_pensions_direct_transfers_data.dta", nogen assert(match)
+use "${data}\02.intermediate\Example_FiscalSim_market_income_data_PY.dta", clear
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_dem_data_PY.dta", nogen assert(match) keepusing(hh_size)
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_SSC_direct_taxes_data.dta", nogen assert(match)
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_pensions_direct_transfers_data.dta", nogen assert(match)
 
 egen double disposable_income_orig = rowtotal(net_market_income_orig pens_trans_orig)
 egen double disposable_income = rowtotal(${market_income} ${SSC} ${direct_taxes} ${pensions} ${direct_transfers})
@@ -47,7 +47,7 @@ collapse (sum) disposable_income_orig disposable_income (mean) hh_size, by(hh_id
 
 isid hh_id
 
-merge 1:m hh_id using "${data}\proc\Example_FiscalSim_exp_data.dta", nogen assert(match)
+merge 1:m hh_id using "${data}\01.pre-simulation\Example_FiscalSim_exp_data.dta", nogen assert(match)
 
 bysort hh_id: egen double total_exp_SY = total(exp_gross_SY)
 	
@@ -96,4 +96,4 @@ keep hh_id ${indirect_taxes}
 mvencode ${indirect_taxes}, mv(0) override 
 
 isid hh_id 
-save "${data}\proc\Example_FiscalSim_indirect_taxes_data.dta", replace
+save "${data}\02.intermediate\Example_FiscalSim_indirect_taxes_data.dta", replace

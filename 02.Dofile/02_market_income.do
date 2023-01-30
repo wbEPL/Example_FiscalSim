@@ -2,7 +2,7 @@
 * Order of taxes matters!
 
 
-use "${data}\proc\Example_FiscalSim_dem_inc_data.dta" , clear
+use "${data}\01.pre-simulation\Example_FiscalSim_dem_inc_data.dta" , clear
 
 gen int tax_payer = (formal_wage == 1 | formal_self  == 1 ) // indication of being formal and paying taxes
 
@@ -57,4 +57,4 @@ mvencode ${market_income} tax_payer net_market_income_orig, mv(0) override
 
 isid hh_id p_id
 
-save "${data}\proc\Example_FiscalSim_market_income_data_SY.dta", replace
+save "${data}\01.pre-simulation\Example_FiscalSim_market_income_data_SY.dta", replace

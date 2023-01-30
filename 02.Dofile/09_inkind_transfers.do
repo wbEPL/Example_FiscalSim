@@ -6,14 +6,14 @@ import excel using "$xls_tool", sheet(inkind)  first clear
 		global `var' = `var'[1]
 	}
 
-use "${data}\proc\Example_FiscalSim_exp_data.dta", clear
+use "${data}\01.pre-simulation\Example_FiscalSim_exp_data.dta", clear
 decode exp_type, generate(exp_name)
 
 keep if exp_type == 81 | exp_type == 82 // expenditures for education
 
 keep hh_id  exp_type exp_net_SY
 reshape wide exp_net_SY, i(hh_id) j(exp_type)
-merge 1:m hh_id using "${data}\proc\Example_FiscalSim_dem_inc_data.dta", nogen assert(match using) keepusing(p_id ind_weight study med_ins hospital_days)
+merge 1:m hh_id using "${data}\01.pre-simulation\Example_FiscalSim_dem_inc_data.dta", nogen assert(match using) keepusing(p_id ind_weight study med_ins hospital_days)
 mvencode   exp_net_SY*  , mv(0) override 
 
 *education status 
@@ -53,4 +53,4 @@ keep hh_id p_id ${health} ${education}
 mvencode ${health} ${education}  , mv(0) override 
 
 isid hh_id p_id
-save "${data}\proc\Example_FiscalSim_inkind_transefrs_data.dta", replace
+save "${data}\02.intermediate\Example_FiscalSim_inkind_transefrs_data.dta", replace

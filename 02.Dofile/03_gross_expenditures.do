@@ -38,9 +38,9 @@ gen double exp_net_SY = exp_gross_SY  / (1 - exp_form * VAT_rate_SY) / (1 - VAT_
 
 isid hh_id exp_type exp_form
 keep hh_id exp_type exp_form exp_net_SY exp_gross_SY
-save "${data}\proc\Example_FiscalSim_exp_data.dta", replace	
+save "${data}\01.pre-simulation\Example_FiscalSim_exp_data.dta", replace	
 
-use "${data}\proc\Example_FiscalSim_exp_data.dta", clear
+use "${data}\01.pre-simulation\Example_FiscalSim_exp_data.dta", clear
 
 * Imputing electricity consumption based on a block tariff structure
 * we assume that the industrial consumers pay full electricity tariff, that is why there is no indirect effect.
@@ -90,4 +90,4 @@ rename electr_exp electr_exp_SY
 
 *keep hh_id electr_cons
 isid hh_id
-save "${data}\proc\Example_FiscalSim_electr_data.dta", replace	
+save "${data}\01.pre-simulation\Example_FiscalSim_electr_data.dta", replace	

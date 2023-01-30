@@ -1,7 +1,7 @@
 *legend
 putexcel set "${xls_tool}", sheet(legend) modify
 
-use "${data}\proc\Example_FiscalSim_output_data.dta", clear
+use "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", clear
 
 global row = 3
 foreach aggregate in market_income $comp_list {
@@ -19,7 +19,7 @@ foreach aggregate in market_income $comp_list {
 global row = 1
 foreach group_var in all decile decile_final hh_type region strata  {
 	
-	use "${data}\proc\Example_FiscalSim_output_data.dta", clear
+	use "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", clear
 	
 	if "`group_var'" == "all" {
 		gen all = 1
@@ -52,7 +52,7 @@ foreach group_var in all decile decile_final hh_type region strata  {
 putexcel set "${xls_tool}", sheet(recipients, replace) modify
 putexcel A1 = "househols" A5 = "individuals"
 
-use "${data}\proc\Example_FiscalSim_output_data.dta", clear
+use "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", clear
 groupfunction, sum(hh_weight ${program_list}) by(hh_id) norestore
 foreach var in $program_list {
 	replace `var' = (`var' != 0)
@@ -64,7 +64,7 @@ foreach var in $program_list {
 }
 export excel "${xls_tool}", sheet(recipients) sheetmodify cell(A2) firstrow(variables) keepcellfm
 
-use "${data}\proc\Example_FiscalSim_output_data.dta", clear
+use "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", clear
 foreach var in $program_list {
 	replace `var' = (`var' != 0)
 }
@@ -75,7 +75,7 @@ foreach var in $program_list {
 export excel "${xls_tool}", sheet(recipients) sheetmodify cell(A6) firstrow(variables) keepcellfm
 
 * Gini and Poverty
-use "${data}\proc\Example_FiscalSim_output_data.dta", clear
+use "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", clear
 gen all = 1
 sp_groupfunction [aw = $weight], gini(${income_list}) theil(${income_list}) poverty(${income_list}) povertyline(${povline})  by(all)
 gen concat = variable +"_"+ measure+"_"
@@ -87,7 +87,7 @@ export excel "${xls_tool}", sheet(gini_poverty) sheetreplace first(variable)
 global row = 1
 foreach group_var in hh_type region strata {
 	
-	use "${data}\proc\Example_FiscalSim_output_data.dta", clear
+	use "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", clear
 	
 	sp_groupfunction [aw = $weight], poverty(${income_list}) povertyline(${povline}) by(`group_var') 
 
@@ -108,7 +108,7 @@ foreach group_var in hh_type region strata {
 
 *===============================================================================
 *by decile
-use "${data}\proc\Example_FiscalSim_output_data.dta", clear
+use "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", clear
 	
 	_ebin ${rank_var} [aw = $weight], gen(decile) nq(10)
 	
@@ -123,7 +123,7 @@ export excel "${xls_tool}", sheet(all) sheetreplace first(variable)
 
 
 * Marginal contributions
-use "${data}\proc\Example_FiscalSim_output_data.dta", clear
+use "${data}\03.simulation-results\Example_FiscalSim_output_data.dta", clear
 
 gen all = 1
 
