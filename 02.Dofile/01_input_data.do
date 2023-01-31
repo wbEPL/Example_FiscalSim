@@ -6,7 +6,7 @@ rename wage wage_net
 rename self_inc self_inc_net
 
 * hh size (we count inly those who are present)
-bysort hh_id: egen double hh_size_test = count(p_id)
+bysort hh_id: egen hh_size_test = count(p_id)
 	assert hh_size == hh_size_test //if !mi(weight)
 	
 * weight
@@ -21,7 +21,7 @@ gen work_age=1-kid_age-pens_age if !mi(ind_weight)
 
 * number of members
 foreach var in kid_age work_age pens_age  {
-bysort hh_id: egen double n_`var'=total(`var')
+bysort hh_id: egen n_`var'=total(`var')
 }
 
 assert n_kid_age+n_work_age+n_pens_age == hh_size if !mi(ind_weight)

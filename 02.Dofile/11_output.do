@@ -132,7 +132,7 @@ global MC_list
 
 foreach inc in market market_pens net_market gross disposable consumable final {
 	foreach var in $program_list $comp_list {
-	    gen double `inc'_`var' = `inc'_income - `var'
+	    gen `inc'_`var' = `inc'_income - `var'
 		global MC_list $MC_list `inc'_`var' 
 	}
 }
