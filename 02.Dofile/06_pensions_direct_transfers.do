@@ -51,7 +51,7 @@ gen unem_weight = ind_weight
 * GMI program (may depend on other programs)
 gen double GMI = 0
 egen double pre_GMI_income = rowtotal(${market_income} ${SSC} ${direct_taxes} ${pensions} ${direct_transfers}) // include only those that are used to for GMI administrative income (GMI is put as zero for time-being)
-bysort hh_id: egen double pre_GMI_income_hh = total(pre_GMI_income) // count number of children in the household
+bysort hh_id: egen double pre_GMI_income_hh = total(pre_GMI_income) 
 gen double pre_GMI_income_pc = pre_GMI_income_hh / hh_size
 replace GMI = max(0, ${GMI_threshold} * 12 - pre_GMI_income_pc) // This programs cover the income upto the threshold
 
