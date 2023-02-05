@@ -12,8 +12,8 @@
 		global path "C:\Users\wb395877\GitHub\Example_FiscalSim" 
 	}
 	
-	else if "`c(username)'" == "" {
-		global path "" // PUT YOU PATH HERE!!!
+	else if "`c(username)'" == "wb484182" {
+		global path "C:\Users\wb484182\OneDrive - WBG\1ys_EPL\EPL-Trainings\2023-January-March-everyMonday\ExampleCodesOnGitHub\Example_FiscalSim" // PUT YOU PATH HERE!!!
 	}
 	
 
