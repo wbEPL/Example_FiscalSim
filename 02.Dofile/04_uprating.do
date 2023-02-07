@@ -16,6 +16,11 @@ foreach var in ind_weight hh_weight {
 	replace `var' = `var' * ${population_uprating}
 }
 
+* adjust poverty line to the cumulative CPI growth
+foreach var in $povline {
+	replace `var' = `var' * ${CPI_uprating}
+}
+
 isid hh_id p_id
 save "${data}\02.intermediate\Example_FiscalSim_dem_data_PY.dta", replace
 

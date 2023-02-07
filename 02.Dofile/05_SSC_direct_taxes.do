@@ -63,7 +63,7 @@ foreach var in $SSC $direct_taxes {
 
 if $SY_consistency_check == 1 { 
 	egen net_market_income = rowtotal(${market_income} ${SSC} ${direct_taxes})
-	assert abs(net_market_income_orig - net_market_income) < 10 ^ (-9) // this is to cheackthat in baseline the original (survey based) and simulated net market incomes are identical
+	assert abs(net_market_income_orig - net_market_income) < 10 ^ (-9) // this is to check that in baseline the original (survey based) and simulated net market incomes are identical
 }				
 
 label variable SIC "Social insurance contributions"
