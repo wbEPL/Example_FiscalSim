@@ -14,6 +14,8 @@ use "${data}\01.pre-simulation\Example_FiscalSim_electr_data.dta", clear
 
 * we assume that the industrial consumers pay full electricity tariff, that is why there is no indirect effect. We estimate the direct effect households only
 
+gen fuel=0 //DELETE LATER
+
 gen electr_exp_PY = 0
 global electr_cutoff_0 = 0
 forvalues i = 1 / $electr_brackets {
