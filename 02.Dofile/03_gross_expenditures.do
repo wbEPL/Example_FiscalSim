@@ -6,7 +6,7 @@ drop sector_name
 
 isid sector
 mvencode VAT_rate_SY VAT_exempt_SY sect_*, mv(0) override // make sure that none of the coefficient is missing
-gen double dp = - VAT_rate_SY
+gen dp = - VAT_rate_SY
 gen fixed = 1 - VAT_exempt_SY // all except exempted sector
 	assert dp == 0 if fixed == 0
 
@@ -34,7 +34,7 @@ rename exp_value exp_gross_SY
 merge m:1 exp_type using `rates_SY', nogen assert(match)
 merge m:1 sector using `ind_effect_SY', nogen assert(match using) keep(match)
 
-gen double exp_net_SY = exp_gross_SY  / (1 - exp_form * VAT_rate_SY) / (1 - VAT_ind_eff_SY)
+gen exp_net_SY = exp_gross_SY  / (1 - exp_form * VAT_rate_SY) / (1 - VAT_ind_eff_SY)
 
 isid hh_id exp_type exp_form
 keep hh_id exp_type exp_form exp_net_SY exp_gross_SY
@@ -51,9 +51,9 @@ keep if exp_type == 88 // electricity expenditures
 gen electr_exp = exp_net_SY / 12 // convert annual expenditures to monthly (norms are in monthly terms)
 keep hh_id electr_exp 
 
-* Block tariff are similar to progresisve tax system. 
+* Block tariff are similar to progresisve tax system. Here we restore the natural quantity in kWh from the expenditures in monetary terms
 
-gen double electr_cons = 0
+gen electr_cons = 0
 
 * tariff by blocks
 global electr_tariff_0 = 0
@@ -62,6 +62,7 @@ global electr_tariff_2 = 4
 global electr_tariff_3 = 6
 global electr_tariff_4 = 8 
 
+* electric cutoffs are defined in terms of quatity (kWh)
 global electr_cutoff_0 = 0
 global electr_cutoff_1 = 100
 global electr_cutoff_2 = 200
@@ -74,10 +75,10 @@ local upper = 0
 forvalues i = 1 / 4 {
 	local j = `i' - 1
 	
-	local lower = `upper'
-	local upper `lower' + (${electr_cutoff_`i'} - ${electr_cutoff_`j'}) * ${electr_tariff_`i'}
+	local lower = `upper' // this threshold are defined in terms of expenditures
+	local upper `lower' + (${electr_cutoff_`i'} - ${electr_cutoff_`j'}) * ${electr_tariff_`i'} // this threshold are defined in terms of expenditures
 	
-		gen double electr_cons_`i' = 0 if inrange(electr_exp, . , `lower')
+		gen electr_cons_`i' = 0 if inrange(electr_exp, . , `lower')
 		replace electr_cons_`i' = (electr_exp  - `lower') / ${electr_tariff_`i'} if inrange(electr_exp, `lower',  `upper')
 		replace electr_cons_`i' = (${electr_cutoff_`i'} - ${electr_cutoff_`j'}) if inrange(electr_exp, `upper', . )
 		

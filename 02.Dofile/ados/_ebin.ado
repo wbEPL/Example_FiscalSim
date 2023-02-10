@@ -4,7 +4,7 @@ cap program drop _ebin
 
     program define _ebin, rclass sortpreserve
 
-    version 8.0
+   		version 8.0
 
         syntax varlist(numeric min=1 max=1) ///
                      [if] [in]       ///
@@ -41,19 +41,16 @@ cap program drop _ebin
                 local if2 " `if'  & (`var'!=.) & (`weight1'!=.) `iforder'"
             }
 
-* mark `touse' `in' `if'
+* 			mark `touse' `in' `if'
             gen `touse' = 1 `in' `if2'
 
             if ("`order'" != "") {
-qui : cap tab `order'
-if (_rc == 0) {
-_pecats `order'
-if (`r(numcats)' < `nq') {
-di as err "number of bins can not greater than the number of available categories."
-exit 198
+                _pecats `order'
+                if (`r(numcats)' < `nq') {
+                    di as err "number of bins can not greater than the number of available categories."
+                    exit 198
 
-}
-}
+                }
             }
 
             if ("`order'" == "") {
@@ -64,21 +61,18 @@ exit 198
             }
 
             gen double `rank1'  = `weight1' in 1 if `touse'
+			
+			replace `rank1'     = `rank1'[_n-1]+`weight1'[_n]   in 2/l
 
-replace `rank1'     = `rank1'[_n-1]+`weight1'[_n]   in 2/l
-
-sum `weight1'                                                   if `touse' == 1
-            gen double `rank2' = `rank1'/`r(sum)' if `touse' == 1
+			sum `weight1'                                                   if `touse' == 1
+            gen double `rank2' = `rank1'/`r(sum)'							if `touse' == 1
             gen double `rank3' = `rank2'*`nq'                               if `touse' == 1
-            gen double `rank4' = int(`rank3') if `touse' == 1
-            replace `rank4' = `nq'-1                                        if `rank4' >= `nq'  & `touse' == 1 
-            replace `rank4' = `rank4'+1 if `touse' == 1 
+            gen double `rank4' = int(`rank3')								if `touse' == 1
+            replace `rank4' = `nq'-1                                        if `rank4' >= `nq'  & `touse' == 1	
+            replace `rank4' = `rank4'+1										if `touse' == 1			
 
             gen double `generate' = `rank4'                                 if `touse' == 1
 
     }
 
 end
-
-*-- 
-*Daniel V.

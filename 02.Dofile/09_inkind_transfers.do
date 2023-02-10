@@ -27,7 +27,7 @@ foreach type in prim sec post_sec tert {
 	su stud_`type' [aw = ind_weight]
 	global stud_tot_`type' = r(sum)
 	
-	gen double educ_`type' = stud_`type' / ${stud_tot_`type'} * ${educ_exp_`type'} * ${scale_factor}
+	gen educ_`type' = stud_`type' / ${stud_tot_`type'} * ${educ_exp_`type'} * ${scale_factor}
 }
 
 * HEALTH (combined approach)
@@ -39,7 +39,7 @@ foreach type in in out {
 	su med_`type' [aw = ind_weight]
 	global med_tot_`type' = r(sum)
 	
-	gen double health_`type' = med_`type' / ${med_tot_`type'} * ${health_exp_`type'} * ${scale_factor}
+	gen health_`type' = med_`type' / ${med_tot_`type'} * ${health_exp_`type'} * ${scale_factor}
 }
 
 label variable health_in "In-hospital in-kind medical benefits"

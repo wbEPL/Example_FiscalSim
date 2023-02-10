@@ -5,6 +5,7 @@
 *===============================================================================
 	set more off
 	clear all
+	set type double, permanently
 	
 	*Please change this to your own path
 	if "`c(username)'" == "WB395877" {
@@ -20,6 +21,7 @@
 		global path "C:/Users/`c(username)'/OneDrive - WBG/Example_FiscalSim" // PUT YOU PATH HERE!!!
 	} 
 	
+
 	else if "`c(username)'" == "" {
 		global path "" // PUT YOU PATH HERE!!!
 	}

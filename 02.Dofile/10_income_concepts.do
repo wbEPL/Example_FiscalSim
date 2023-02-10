@@ -22,24 +22,24 @@ foreach aggregate in market_income $comp_list {
 		mvencode  `var', mv(0) override 
 		global program_list ${program_list} `var'
 	}
-	egen double `aggregate' = rowtotal(${`aggregate'}) 
+	egen `aggregate' = rowtotal(${`aggregate'}) 
 }
 
-gen double net_market_income = market_income + direct_taxes + SSC
+gen net_market_income = market_income + direct_taxes + SSC
 
-gen double market_pens_income = market_income + pensions + SSC
+gen market_pens_income = market_income + pensions + SSC
 
-gen double gross_income = market_income + direct_transfers + pensions
+gen gross_income = market_income + direct_transfers + pensions
 
-gen double disposable_income = market_income + direct_transfers + pensions + direct_taxes + SSC
+gen disposable_income = market_income + direct_transfers + pensions + direct_taxes + SSC
 
 assert abs(disposable_income - (market_pens_income + direct_transfers + direct_taxes))  < 10^(-9)
 assert abs(disposable_income - (net_market_income + direct_transfers + pensions)) < 10^(-9)
 assert disposable_income == gross_income + direct_taxes + SSC
 
-gen double consumable_income = disposable_income + indirect_subsidies + indirect_taxes
+gen consumable_income = disposable_income + indirect_subsidies + indirect_taxes
 
-gen double final_income = consumable_income + health + education
+gen final_income = consumable_income + health + education
 
 *converting individual-level data to average per capita values
 foreach var in $income_list {
