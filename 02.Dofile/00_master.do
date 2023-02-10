@@ -15,6 +15,11 @@
 		global path "C:\Users\wb532966\CEQ\Example_FiscalSim" // PUT YOU PATH HERE!!!
 	} 
 	
+	else if "`c(username)'" == "WB419055" {
+	
+		global path "C:/Users/`c(username)'/OneDrive - WBG/Example_FiscalSim" // PUT YOU PATH HERE!!!
+	} 
+	
 	else if "`c(username)'" == "" {
 		global path "" // PUT YOU PATH HERE!!!
 	}

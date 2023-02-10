@@ -1,21 +1,481 @@
 *Calculating indirect taxes for policy year
-
 * VAT indirect effect:
-import excel using "$xls_tool", sheet(IO) first clear 
-drop sector_name
+clear
+matrix drop _all 
 
+local n_sect 16
+	
+/*-------------------------------------------------------------------------------------
+Load IO matrix and expanding IO sectors 
+-------------------------------------------------------------------------------------*/	
+
+import excel using "$xls_tool", sheet(IO) first clear //load technical coefficients 
+mvencode VAT_rate_PY VAT_exempt_PY VAT_exempt_share sect_*, mv(0) override // It will replace with zero all missing coefficients, so make sure to have as non missing all sector with non-zero VAT
+
+
+levelsof sector , local (aux_io_list)
+foreach s of local aux_io_list  {
+	local io_list "`io_list' sect_`s'"
+}
+
+/*
+*Notice sectors should be organized
+	foreach s of local aux_io_list  {
+		local io_list "`io_list' sect_`s'"
+	}
+	order sector `io_list'
+
+*Be sure you are not loading missing observation
+assert  missing(sector)==0
+
+*Notice it should be unique values by sector 
 isid sector
-mvencode VAT_rate_PY VAT_exempt_PY sect_*, mv(0) override // make sure that none of the coefficient is missing
+*/ 
+
+
+/* ------------------------------------
+	First we extended all the sectors 
+ --------------------------------------*/
+
+mata: 
+	ve=st_data(.,"VAT_exempt_share",.)
+	nve=J(`n_sect',1,1)-ve
+
+	io=st_data(., "sect_1-sect_`n_sect'",.) // Store the IO in Mata: (.) returns in stata all observations,  for  sect_1, sect_2, ..., sect_14, sect_15, sect_16, (.) no conditions on the obs or rows that should be excluded
+
+	extended=J(`n_sect'*2,`n_sect'*2,0) // null square matrix of (`n_sect' X 2) 
+	
+	for(n=1; n<=`n_sect'; n++)  {
+	
+		jj=2*n-1 // odd numbers 
+		kk=jj+1  // paid numbers 
+	
+		for(i=1; i<=`n_sect'; i++)  {
+			j=2*i-1 // odds
+			k=j+1   // pairs 
+			
+			//extended[jj::kk,j::k]=J(2,2,io[n,i])/2
+			 //take original coefficient by IO and split it by nve or ve 
+			extended[jj::jj,j::k]=J(1,2,io[n,i]*nve[n,1])
+			extended[kk::kk,j::k]=J(1,2,io[n,i]*ve[n,1])
+		}
+	}
+		
+	st_matrix("extended",extended) // saving the stata matrix into stata
+
+end 
+
+
+/* ------------------------------------
+	Reduce the matrix 
+ --------------------------------------*/
+
+	svmat extended 
+	mat list extended
+
+	
+	
+/*	mata: 
+	for(n=1; n<=16; n++)  {
+	
+		jj=2*n-1
+		kk=jj+1
+	
+		for(i=1; i<=16; i++)  {
+		j=2*i-1
+		k=j+1
+		
+		extended[jj::kk,j::k]=J(2,2,io[n,i])/2
+		
+		}
+	}
+	
+	
+	st_matrix("extended",extended) // saving the stata matrix into stata
+	end
+
+	svmat extended // from mata to stata : extended is 70X (35+70)
+
+
+exit 	
+*/
+	
+	
+	
+	mata:
+	for(n=1; n<=`n_sect'; n++)  {
+	
+		jj=2*n-1 // odd numbers 
+		kk=jj+1  // paid numbers 
+	
+		for(i=1; i<=`n_sect'; i++)  {
+			j=2*i-1 // odds
+			k=j+1   // pairs 
+			
+			//extended[jj::kk,j::k]=J(2,2,io[n,i])/2
+			 //take original coefficient by IO and split it by nve or ve 
+			extended[jj::jj,j::k]=J(1,2,io[n,i]*nve[n,1])
+			extended[kk::kk,j::k]=J(1,2,io[n,i]*ve[n,1])
+		}
+	}
+		
+	st_matrix("extended",extended) // saving the stata matrix into stata
+	end
+
+	*svmat extended 
+	*mat list extended
+
+
+exit 
+	
+**---------------------
+	clear
+	matrix drop _all 
+	import excel using "$xls_tool", sheet(IO) first clear 
+	keep sect_1-sect_3
+	keep in 1/3
+	
+	
+	mata: io=st_data(., "sect_1-sect_3",.) // Store the IO 
+	
+	mata: extended=J(9,9,0) // null square matrix of (`n_sect' X 2) 
+	
+	*first loop
+	//jj: 1, kk: 2, j: 1 k: 2, n:1 i:1
+	
+	mata: extended[1::3,1::3]=J(3,3,io[1,1])/2 // filling up from row 1:3 to colum 1:3 with a 3 by 3 matrix fill with a constant which is the coefficient 
+	
+	mata: st_matrix("extended",extended) 
+	
+	mata: st_matrix("io",io) 
+
+	mat list extended
+	mat list io
+	
+	
+	forvalues n = 1(1)32 {
+	
+	local jj=2*`n'-1 // before the last observation 
+	local kk=`jj'+1  // last observation 
+	
+	dis "JJ is `jj'"
+	dis "KK is  `kk'"
+	
+	extended[jj::kk,j::k]=J(2,2,io[n,i])/2
+		
+		for(i=1; i<=`n_sect'; i++)  {
+			j=2*i-1 // odds
+			k=j+1   // pairs 
+			
+			extended[jj::kk,j::k]=J(2,2,io[n,i])/2
+		}
+	}
+	
+	
+**---------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+clear
+
+svmat extended // from mata to stata : extended is 70X (35+70)
+
+rename extended* sector_* // index extended sectors 
+
+gen sector=ceil(_n/2) // rename sectors with ceiling name
+
+// Second we collapse sectors that do not extend 
+
+
+gen aux=.
+
+foreach ii of local  collsecs {
+	replace  aux=1    if  sector==`ii'       // sectors that collapse 
+}
+
+replace aux=0 if aux==.
+
+preserve 
+
+keep if aux==0
+
+tempfile nocollapse
+
+save `nocollapse'
+
+restore 
+
+// Third we keep the sectors that collapse and then append the sectors that do not collapse 
+
+keep if aux==1    
+
+collapse (sum) sector_1-sector_70 if aux==1 , by(sector)
+
+append using `nocollapse'
+
+sort sector
+
+
+// Fourth and finnaly we remove columns of the sectors that do not collapse 
+
+drop aux
+
+foreach var of local collsecs {
+
+local ii =  `var'*2
+
+drop sector_`ii'
+
+}
+
+//Now the matrix is a square matrix that only expanded sectors that include both exempted and non-exempted products
+
+// we identify excluded sectors 
+
+gen exempted=0
+
+foreach var of local excluded {
+
+replace exempted=1   if   sector==`var'
+
+}
+
+bys sector:  gen aux_size=_n
+replace exempted=0  if aux_size==2
+drop aux_size
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*Define the shock 
 gen double dp = - VAT_rate_PY
-gen fixed = 1 - VAT_exempt_PY // all except exempted sector
+
+*Define the fixed sectors
+gen fixed = 1 - VAT_exempt_PY // sectors whose price is not affected by input-output linkages of final goods oods produced locally (e.g., international prices, regulated)
 	assert dp == 0 if fixed == 0
 
-costpush sect_*, fixed(fixed) price(dp) genptot(VAT_tot_eff_PY) genpind(VAT_ind_eff_PY) fix
 
-keep sector VAT_ind_eff_PY
-isid sector
-tempfile ind_effect_PY
-save `ind_effect_PY', replace
+
+
+
+
+
+
+
+// Store the IO in Mata 
+
+mata: io=st_data(., "C1-C35",.) // (.) returns in stata all observations,  for  variables between (C1-C35), (.) no conditions on the observations that should be excluded
+
+// Matrix of ceros 
+
+mata: extended=J(35*2,35*2,0)   // square matrix of 35X2 filled of zeros
+
+
+// First we extended all the sectors 
+	mata: 
+	for(n=1; n<=35; n++)  {
+	
+		jj=2*n-1
+		kk=jj+1
+	
+		for(i=1; i<=35; i++)  {
+		j=2*i-1
+		k=j+1
+		
+		extended[jj::kk,j::k]=J(2,2,io[n,i])/2
+		
+		}
+	}
+	
+	st_matrix("extended",extended)
+	
+	end
+
+clear
+
+svmat extended // from mata to stata : extended is 70X (35+70)
+
+rename extended* sector_* // index extended sectors 
+
+gen sector=ceil(_n/2) // rename sectors with ceiling name
+
+// Second we collapse sectors that do not extend 
+
+
+gen aux=.
+
+foreach ii of local  collsecs {
+	replace  aux=1    if  sector==`ii'       // sectors that collapse 
+}
+
+replace aux=0 if aux==.
+
+preserve 
+
+keep if aux==0
+
+tempfile nocollapse
+
+save `nocollapse'
+
+restore 
+
+// Third we keep the sectors that collapse and then append the sectors that do not collapse 
+
+keep if aux==1    
+
+collapse (sum) sector_1-sector_70 if aux==1 , by(sector)
+
+append using `nocollapse'
+
+sort sector
+
+
+// Fourth and finnaly we remove columns of the sectors that do not collapse 
+
+drop aux
+
+foreach var of local collsecs {
+
+local ii =  `var'*2
+
+drop sector_`ii'
+
+}
+
+//Now the matrix is a square matrix that only expanded sectors that include both exempted and non-exempted products
+
+// we identify excluded sectors 
+
+gen exempted=0
+
+foreach var of local excluded {
+
+replace exempted=1   if   sector==`var'
+
+}
+
+bys sector:  gen aux_size=_n
+replace exempted=0  if aux_size==2
+drop aux_size
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 * Import rates (for direct effect)
 import excel using "$xls_tool", sheet(VAT) first clear 
