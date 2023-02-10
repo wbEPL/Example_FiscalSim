@@ -53,7 +53,7 @@ gen gas_exp_SY = exp_gross_SY/(1-$fuel_sub) if exp_type==90
 
 label var gas_exp_SY "HH expenditure on gas (annual), pre-subsidy"	
 
-keep hh_id  gas_exp_SY 
+*keep hh_id  gas_exp_SY 
 *isid hh_id
 save "${data}\01.pre-simulation\Example_FiscalSim_gas_data.dta", replace	
 
