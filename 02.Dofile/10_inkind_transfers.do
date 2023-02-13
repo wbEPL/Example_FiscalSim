@@ -6,7 +6,7 @@ import excel using "$xls_tool", sheet(inkind)  first clear
 		global `var' = `var'[1]
 	}
 
-use "${data}\01.pre-simulation\Example_FiscalSim_exp_data.dta", clear
+use "${data}\01.pre-simulation\Example_FiscalSim_exp_data_SY.dta", clear
 decode exp_type, generate(exp_name)
 
 keep if exp_type == 81 | exp_type == 82 // expenditures for education
