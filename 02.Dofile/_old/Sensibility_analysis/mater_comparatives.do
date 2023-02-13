@@ -1,3 +1,4 @@
+
 *===============================================================================
 * Example FiscalSim - fiscal microsimulation model for hypothetical country. 
 * Prepared by EPL team (Mikhail Matytsin with inputs from Daniel Valderrama Gonzalez, Haydeeliz Carrasco Nunez, Maya Goldman and Eduard Bukin)
@@ -52,46 +53,19 @@
 *===============================================================================
 
 
-global market_income 				wage self_inc cap_income agri_inc priv_trans
+include "thedo/_old/Sensibility_analysis07_indirect_taxes_old.do"
 
-global SSC							SIC
-global direct_taxes 				PIT	
 
-global pensions 					lab_pens  
-global direct_transfers 			soc_pens unem_ben child_ben GMI other_ben
 
-global indirect_taxes 				VAT_dir VAT_ind										   
-global indirect_subsidies 			electr_sub gas_sub_dir gas_sub_ind
 
-global health  						health_in health_out 									   
-global education					educ_prim educ_sec educ_tert
 
-global weight 						ind_weight
-global povline 						povline_nat //povline_int32 povline_int55 // you may choose between a few available poverty lines (for example, national and international)
-global rank_var 					market_income //choose between market income and market plus pensions - this is similar for PGT and PDI scenarios to some extent 
 
-global dem_list 					hh_size ind_weight hh_weight /*age*/ hh_type strata region povline_*
-global income_list  				market_income market_pens_income net_market_income gross_income disposable_income consumable_income final_income  
-global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes indirect_subsidies health education
+Next steps:
 
-	
-	*Pre-simulation stage (needs to be run only once to get the input data)
+Validate Using Misha method and my method
 
-	do "${thedo}\01_input_data.do"
-	do "${thedo}\02_gross_market_income.do"
-	do "${thedo}\03_net_expenditures.do"
-	
-	*Simulation stage (needs to be run for every scneario)
-	
-	do "${thedo}\04_income_uprating.do"
-	do "${thedo}\05_SSC_direct_taxes.do"
-	do "${thedo}\06_pensions_direct_transfers.do"
-	do "${thedo}\07_expenditure_adjustment.do"
-	do "${thedo}\08_indirect_subsidies.do"
-	do "${thedo}\09_indirect_taxes.do"
-	do "${thedo}\10_inkind_transfers.do"
-	do "${thedo}\11_income_concepts.do"
-	
-	*Post-simulation stage (needs to be run for every scneario)
-	
-	do "${thedo}\12_output.do"
+-Validate the inflation rates using misha method and my method
+
+-Validate the inflation rates using misha method and my method
+
+-Validate the inflation rates using misha method and my method

@@ -11,6 +11,7 @@ program define vatpush, rclass
 		COSTPush(varlist max=1 numeric)
 		shock(varlist max=1 numeric)
 		VATable(varlist max=1 numeric)
+		gen(string)
 		;
 	#delimit cr		
 
@@ -18,9 +19,10 @@ program define vatpush, rclass
 	keep if `touse'
 
 	*Reading the matrix of technical coefficients 
+	gen double `gen'=0
 	
 	//Creating matrix elements for indirect 
-	mata : st_view(YY=., ., "indirect_effect_iva",.)
+	mata : st_view(YY=., ., "`gen'",.) // data will be modifying 
 	mata: A=st_data(., "`varlist'",.)
 	mata: cp=st_data(., "`costpush'",.)'
 	mata: shock=st_data(., "`shock'",.)'
@@ -31,7 +33,8 @@ program define vatpush, rclass
 	mata:  YY[.,.]=indirect2(A,cp,shock,vatable,exempt)'
 
 	*Price control sectors 
-	replace indirect_effect_iva=0   if cp==0
+	replace `gen'=0   if cp==0
+	lab var `gen' "Indirect shock"
 
 end 
 
