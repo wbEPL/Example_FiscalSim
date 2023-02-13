@@ -37,8 +37,8 @@ gen dp = 0.1 * 0.3 if sector == 4 //Price shock: Subsidy removal on Energy secto
 gen fixed = (dp != 0) // Government controls prices on energy sector 
 	assert dp == 0 if fixed == 0
 	
-costpush sect_*, fixed(fixed) price(dp) genptot(sub_gas_tot_SY) genpind(sub_gas_ind_SY) fix
-keep sector sub_gas_ind_SY
+costpush sect_*, fixed(fixed) price(dp) genptot(gas_sub_tot_eff_SY) genpind(gas_sub_ind_eff_SY) fix
+keep sector gas_sub_ind_eff_SY
 
 isid sector
 tempfile ind_effect_gas_SY
@@ -59,12 +59,12 @@ gen exp_net_SY = exp_gross_SY  / (1 - exp_form * VAT_rate_SY) / (1 - VAT_ind_eff
 *Calculate net expenditure (before fuel subsidy)
 merge m:1 sector using `ind_effect_gas_SY', nogen assert(match using) keep(match)
 
-replace exp_net_SY = exp_net_SY / (1 - 0.3) / (1 - sub_gas_ind_SY) if exp_type == 90 //Net expenditure (before VAT and before subsidy)
+replace exp_net_SY = exp_net_SY / (1 - 0.3) / (1 - gas_sub_ind_eff_SY) if exp_type == 90 //Net expenditure (before VAT and before subsidy)
 
 isid hh_id exp_type exp_form
 keep hh_id exp_type exp_form exp_net_SY exp_gross_SY sector
 
-save "${data}\01.pre-simulation\Example_FiscalSim_exp_data.dta", replace
+save "${data}\01.pre-simulation\Example_FiscalSim_exp_data_SY.dta", replace
 
 *****Electricity subsidy
 * Imputing electricity consumption based on a block tariff structure
