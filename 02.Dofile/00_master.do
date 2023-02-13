@@ -5,6 +5,7 @@
 *===============================================================================
 	set more off
 	clear all
+	
 	set type double, permanently
 	
 	*Please change this to your own path
