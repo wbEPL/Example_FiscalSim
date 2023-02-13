@@ -12,8 +12,8 @@
 		global path "C:\Users\wb395877\GitHub\Example_FiscalSim" 
 	}
 	
-	else if "`c(username)'" == "" {
-		global path "" // PUT YOU PATH HERE!!!
+	else if "`c(username)'" == "WB526693" {
+		global path "C:\Users\wb526693\Github_projects\Example_FiscalSim" // PUT YOU PATH HERE!!!
 	}
 	
 
@@ -48,7 +48,7 @@ global pensions 					lab_pens
 global direct_transfers 			soc_pens unem_ben child_ben GMI other_ben
 
 global indirect_taxes 				VAT_dir VAT_ind										   
-global indirect_subsidies 			electr_subs
+global indirect_subsidies 			electr_sub gas_sub_dir gas_sub_ind
 
 global health  						health_in health_out 									   
 global education					educ_prim educ_sec educ_tert
