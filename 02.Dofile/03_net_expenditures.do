@@ -59,7 +59,9 @@ gen exp_net_SY = exp_gross_SY  / (1 - exp_form * VAT_rate_SY) / (1 - VAT_ind_eff
 *Calculate net expenditure (before fuel subsidy)
 merge m:1 sector using `ind_effect_gas_SY', nogen assert(match using) keep(match)
 
-replace exp_net_SY = exp_net_SY / (1 - 0.3) / (1 - gas_sub_ind_eff_SY) if exp_type == 90 //Net expenditure (before VAT and before subsidy)
+//Net expenditure (before VAT and before subsidy)
+replace exp_net_SY = exp_net_SY / (1 - gas_sub_ind_eff_SY) // indirect effect for all goods and services
+replace exp_net_SY = exp_net_SY / (1 - 0.1)  if exp_type == 90 //direct effect for gas.
 
 isid hh_id exp_type exp_form
 keep hh_id exp_type exp_form exp_net_SY exp_gross_SY sector

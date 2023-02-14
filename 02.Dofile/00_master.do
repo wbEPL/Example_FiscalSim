@@ -1,7 +1,7 @@
 *===============================================================================
 * Example FiscalSim - fiscal microsimulation model for hypothetical country. 
 * Prepared by EPL team (Mikhail Matytsin with inputs from Daniel Valderrama Gonzalez, Haydeeliz Carrasco Nunez, Maya Goldman and Eduard Bukin)
-* December 2022
+* December 2022 - January-February 2023
 *===============================================================================
 	set more off
 	clear all

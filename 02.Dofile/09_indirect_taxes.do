@@ -35,9 +35,12 @@ gen exp_gross_PY = exp_gross_subs_PY  * (1 - exp_form * VAT_rate_PY) * (1 - VAT_
 
 	if $SY_consistency_check == 1 { 
 		merge 1:1 hh_id exp_type exp_form using "${data}\01.pre-simulation\Example_FiscalSim_exp_data_SY.dta", nogen assert(match) keepusing(exp_net_SY exp_gross_SY)
-		assert abs(exp_net_SY  * (1 - exp_form * VAT_rate_PY) * (1 - VAT_ind_eff_PY) - exp_gross_SY) < 10 ^ (-10) if exp_type != 90 // this should be correct for the goods and services that are not subsidized
+		merge 1:1 hh_id exp_type exp_form using "${data}\02.intermediate\Example_FiscalSim_exp_data_PY.dta", nogen assert(match) keepusing(exp_net_PY)
+		// we check that gross expenditures for SY and PY are indetical for baseline with income-expenditure adjustment:
+		assert abs(exp_gross_PY - exp_gross_SY * exp_net_PY / exp_net_SY) < 10 ^ (-10) if exp_net_SY !=0
+		assert exp_gross_PY == exp_gross_SY if exp_net_SY == 0
 	}
-	
+
 gen VAT = exp_gross_subs_PY - exp_gross_PY
 
 * if we would like to separate the direct and indirect effect this can be done:
