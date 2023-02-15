@@ -1,18 +1,30 @@
-*Calculating indirect taxes for policy year
-* VAT indirect effect:
-
-
+*Calculating incidence of indirect taxes VAT for policy year
 
 /* ------------------------------------
-1. Indirect effects 
+ ------------------------------------
+1. Indirect effects of VAT on prices 
+ ------------------------------------
 --------------------------------------*/
+
 /* ------------------------------------
 1.A Expanding IO matrix 
  --------------------------------------*/
 
 import excel using "$xls_tool", sheet(IO) first clear //load technical coefficients 
-mvencode VAT_rate_PY VAT_exempt_PY VAT_exempt_share_PY sect_*, mv(0) override // It will replace with zero all missing coefficients, so make sure to have as non missing all sector with non-zero VAT
-replace VAT_exempt_share_PY=0 if VAT_exempt_PY==0 // If a sector has not exemptions the exemption share should be missing 
+
+local list ""
+
+des VAT_rate_PY VAT_exempt_PY VAT_exempt_share_PY sect_1-sect_16 , varlist
+foreach v in `r(varlist)'  { 
+	assert `v'!=. // No variable should be missing 
+	local list "`list' `v'"
+}
+
+keep `list' sector // to be sure we are using the SY or PY variables 
+
+// Consistency between policies 
+assert  VAT_exempt_share_PY>0   if VAT_exempt_PY==1 // all exempted sector should have a exemption share 
+assert  VAT_exempt_share_PY==0  if VAT_exempt_PY==0 // all non exempted sector should have either zero or missing  
 
 tempfile io_original 
 save `io_original', replace 
@@ -21,7 +33,7 @@ save `io_original', replace
 vatmat sect_1-sect_16, exempt(VAT_exempt_PY) pexempt(VAT_exempt_share_PY) sector(sector)
 
 /* ------------------------------------
-1.B  Defining components of the VAT push 
+1.B  Estimating indirect effects of VAT
  --------------------------------------*/
 
 *Fixed sectors 
@@ -53,31 +65,36 @@ vatpush sector_1-sector_32 , exempt(exempted) costpush(cp) shock(shock) vatable(
 
 keep sector VAT_ind_eff_PY exempted
 
-tempfile ind_effect_PY
-save `ind_effect_PY'
+tempfile ind_effect_VAT_PY
+save `ind_effect_VAT_PY'
 
 
 
 /* ------------------------------------
-2. Direct effects 
+ ------------------------------------
+2. Direct effects of VAT on prices 
+ ------------------------------------
 --------------------------------------*/
+
 
 import excel using "$xls_tool", sheet(VAT) first clear 
 replace VAT_rate_PY = - VAT_rate_PY
 keep exp_type sector VAT_rate_PY VAT_exempt_PY
 isid exp_type
-tempfile rates_PY
-save `rates_PY', replace
-
+tempfile VAT_rates_PY
+save `VAT_rates_PY', replace
 
 /* ------------------------------------
-3. Computing effects of taxes and transfers 
+ ------------------------------------
+3. Welfare impacts of VAT
+ ------------------------------------
 --------------------------------------*/
+
 use "${data}\02.intermediate\Example_FiscalSim_indirect_subs_data_long.dta", clear // What if SY activated 
 	
-merge m:1 exp_type using `rates_PY', nogen assert(match)
+merge m:1 exp_type using `VAT_rates_PY', nogen assert(match)
 ren VAT_exempt_PY exempted
-merge m:1 sector exempted using `ind_effect_PY', nogen assert(match using) keep(match)
+merge m:1 sector exempted using `ind_effect_VAT_PY', nogen assert(match using) keep(match)
 
 gen exp_gross_PY = exp_gross_subs_PY  * (1 - exp_form * VAT_rate_PY) * (1 - VAT_ind_eff_PY)
 
