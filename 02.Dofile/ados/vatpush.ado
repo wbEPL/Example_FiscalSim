@@ -32,7 +32,7 @@ program define vatpush, rclass
 	
 	mata:  YY[.,.]=indirect2(A,cp,shock,vatable,exempt)'
 
-	*Price control sectors 
+	*Price control sectors do not have indirect effect 
 	replace `gen'=0   if cp==0
 	lab var `gen' "Indirect shock"
 

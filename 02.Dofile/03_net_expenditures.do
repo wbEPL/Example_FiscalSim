@@ -38,7 +38,7 @@ local thefixed 4 // Energy and basic services completely regulated. Also int tra
 gen fixed=0
 foreach var of local thefixed {
 	replace fixed=1  if  sector==`var'
-	replace exempted=0 if fixed==1 // a sector is either exempted or fixed 
+	replace exempted=0 if fixed==1 //  sector is either exempted or fixed 
 }
 
 *VAT rates (sector level VAT)
@@ -58,7 +58,7 @@ gen vatable=1-fixed-exempted
 *Indirect effects 
 *gen indirect_effect_iva=0
 
-vatpush sector_1-sector_32 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_SY)
+vatpush sector_1-sector_31 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_SY)
 
 keep sector VAT_ind_eff_SY exempted
 
@@ -72,7 +72,8 @@ save `ind_effect_VAT_SY'
  ------------------------------------
 --------------------------------------*/
 
-import excel using "$xls_tool", sheet(VAT) first clear 
+import excel using "$xls_tool", sheet(VAT) first clear
+ 
 replace VAT_rate_SY = - VAT_rate_SY
 keep exp_type sector VAT_rate_SY VAT_exempt_SY
 isid exp_type

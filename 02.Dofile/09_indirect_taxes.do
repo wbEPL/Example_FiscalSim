@@ -29,7 +29,6 @@ assert  VAT_exempt_share_PY==0  if VAT_exempt_PY==0 // all non exempted sector s
 tempfile io_original 
 save `io_original', replace 
 
-
 vatmat sect_1-sect_16, exempt(VAT_exempt_PY) pexempt(VAT_exempt_share_PY) sector(sector)
 
 /* ------------------------------------
@@ -41,7 +40,7 @@ local thefixed 4 // Energy and basic services completely regulated. Also int tra
 gen fixed=0
 foreach var of local thefixed {
 	replace fixed=1  if  sector==`var'
-	replace exempted=0 if fixed==1 // replace You are either exempted or fixed 
+	replace exempted=0 if fixed==1 //  sector is either exempted or fixed  fixed 
 }
 
 *VAT rates (sector level VAT)
@@ -61,7 +60,7 @@ gen vatable=1-fixed-exempted
 *Indirect effects 
 *gen indirect_effect_iva=0
 
-vatpush sector_1-sector_32 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_PY)
+vatpush sector_1-sector_31 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_PY)
 
 keep sector VAT_ind_eff_PY exempted
 
@@ -91,7 +90,7 @@ save `VAT_rates_PY', replace
 --------------------------------------*/
 
 use "${data}\02.intermediate\Example_FiscalSim_indirect_subs_data_long.dta", clear // What if SY activated 
-	
+
 merge m:1 exp_type using `VAT_rates_PY', nogen assert(match)
 ren VAT_exempt_PY exempted
 merge m:1 sector exempted using `ind_effect_VAT_PY', nogen assert(match using) keep(match)
