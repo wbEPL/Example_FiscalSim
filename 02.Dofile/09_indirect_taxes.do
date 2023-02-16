@@ -1,35 +1,100 @@
-*Calculating indirect taxes for policy year
+*Calculating incidence of indirect taxes VAT for policy year
 
-* VAT indirect effect:
-import excel using "$xls_tool", sheet(IO) first clear 
-drop sector_name
+/* ------------------------------------
+ ------------------------------------
+1. Indirect effects of VAT on prices 
+ ------------------------------------
+--------------------------------------*/
 
-isid sector
-mvencode VAT_rate_PY VAT_exempt_PY sect_*, mv(0) override // make sure that none of the coefficient is missing
-gen dp = - VAT_rate_PY
-gen fixed = 1 - VAT_exempt_PY // all except exempted sector
-	assert dp == 0 if fixed == 0
+/* ------------------------------------
+1.A Expanding IO matrix 
+ --------------------------------------*/
 
-costpush sect_*, fixed(fixed) price(dp) genptot(VAT_tot_eff_PY) genpind(VAT_ind_eff_PY) fix
+import excel using "$xls_tool", sheet(IO) first clear //load technical coefficients 
 
-keep sector VAT_ind_eff_PY
-isid sector
+local list ""
+
+des VAT_rate_PY VAT_exempt_PY VAT_exempt_share_PY sect_1-sect_16 , varlist
+foreach v in `r(varlist)'  { 
+	assert `v'!=. // No variable should be missing 
+	local list "`list' `v'"
+}
+
+keep `list' sector // to be sure we are using the SY or PY variables 
+
+// Consistency between policies 
+assert  VAT_exempt_share_PY>0   if VAT_exempt_PY==1 // all exempted sector should have a exemption share 
+assert  VAT_exempt_share_PY==0  if VAT_exempt_PY==0 // all non exempted sector should have either zero or missing  
+
+tempfile io_original 
+save `io_original', replace 
+
+
+vatmat sect_1-sect_16, exempt(VAT_exempt_PY) pexempt(VAT_exempt_share_PY) sector(sector)
+
+/* ------------------------------------
+1.B  Estimating indirect effects of VAT
+ --------------------------------------*/
+
+*Fixed sectors 
+local thefixed 4 // Energy and basic services completely regulated. Also int trade sectors 
+gen fixed=0
+foreach var of local thefixed {
+	replace fixed=1  if  sector==`var'
+	replace exempted=0 if fixed==1 // replace You are either exempted or fixed 
+}
+
+*VAT rates (sector level VAT)
+merge m:1 sector using `io_original', assert(master matched) keepusing(VAT_rate_PY) nogen
+
+ren VAT_rate_PY shock
+replace shock=-shock // To match code that aggregates income 
+replace shock=0  if exempted==1
+replace shock=0  if shock==.
+
+*No price control sectors 
+gen cp=1-fixed
+
+*vatable sectors 
+gen vatable=1-fixed-exempted
+
+*Indirect effects 
+*gen indirect_effect_iva=0
+
+vatpush sector_1-sector_32 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_PY)
+
+keep sector VAT_ind_eff_PY exempted
+
 tempfile ind_effect_VAT_PY
-save `ind_effect_VAT_PY', replace
+save `ind_effect_VAT_PY'
 
-* Import rates (for direct effect)
+
+
+/* ------------------------------------
+ ------------------------------------
+2. Direct effects of VAT on prices 
+ ------------------------------------
+--------------------------------------*/
+
+
 import excel using "$xls_tool", sheet(VAT) first clear 
 replace VAT_rate_PY = - VAT_rate_PY
-keep exp_type sector VAT_rate_PY
+keep exp_type sector VAT_rate_PY VAT_exempt_PY
 isid exp_type
 tempfile VAT_rates_PY
 save `VAT_rates_PY', replace
 
+/* ------------------------------------
+ ------------------------------------
+3. Welfare impacts of VAT
+ ------------------------------------
+--------------------------------------*/
 
-use "${data}\02.intermediate\Example_FiscalSim_indirect_subs_data_long.dta", clear
+use "${data}\02.intermediate\Example_FiscalSim_indirect_subs_data_long.dta", clear // What if SY activated 
 	
 merge m:1 exp_type using `VAT_rates_PY', nogen assert(match)
-merge m:1 sector using `ind_effect_VAT_PY', nogen assert(match using) keep(match)
+ren VAT_exempt_PY exempted
+merge m:1 sector exempted using `ind_effect_VAT_PY', nogen assert(match using) keep(match)
 
 gen exp_gross_PY = exp_gross_subs_PY  * (1 - exp_form * VAT_rate_PY) * (1 - VAT_ind_eff_PY)
 
@@ -43,9 +108,10 @@ gen exp_gross_PY = exp_gross_subs_PY  * (1 - exp_form * VAT_rate_PY) * (1 - VAT_
 
 gen VAT = exp_gross_subs_PY - exp_gross_PY
 
+
 * if we would like to separate the direct and indirect effect this can be done:
 gen VAT_dir = exp_gross_subs_PY  * exp_form * VAT_rate_PY
-gen VAT_ind = VAT - VAT_dir // the direct and indirect effects are rather cumulative than additive, but need them to add up
+gen VAT_ind = VAT - VAT_dir // the direct and indirect effects are rather cumulative than additive, recasting indirect effects in this ways assures additivity
 
 foreach var in $indirect_taxes {
 	replace `var' = `var' / hh_size // we need to convert to per capita terms since me merge with individual-level data
