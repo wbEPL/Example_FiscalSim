@@ -60,7 +60,7 @@ gen vatable=1-fixed-exempted
 *Indirect effects 
 *gen indirect_effect_iva=0
 
-vatpush sector_1-sector_31 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_PY)
+vatpush sector_1-sector_32 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_PY)
 
 keep sector VAT_ind_eff_PY exempted
 

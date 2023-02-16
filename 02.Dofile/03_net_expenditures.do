@@ -58,7 +58,7 @@ gen vatable=1-fixed-exempted
 *Indirect effects 
 *gen indirect_effect_iva=0
 
-vatpush sector_1-sector_31 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_SY)
+vatpush sector_1-sector_32 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_SY)
 
 keep sector VAT_ind_eff_SY exempted
 
@@ -119,12 +119,12 @@ gen int exp_form = 2 - place_purchase
 rename exp_value exp_gross_SY
 
 	
-merge m:1 exp_type using `VAT_rates_SY', nogen assert(match) // notice here we merge!! product level exemption 
+merge m:1 exp_type using `VAT_rates_SY', nogen assert(match) // notice here we merge!! product-exemption level
 ren VAT_exempt_SY exempted
 replace VAT_rate_SY=0 if exempted==1 // this should not be needed 
 
 merge m:1 sector exempted using `ind_effect_VAT_SY', nogen  assert(match using) keep(match)
-
+*ACA
 gen exp_net_SY = exp_gross_SY  / ( (1 - exp_form * VAT_rate_SY) * (1 - VAT_ind_eff_SY) )
 
 /* ------------------------------------

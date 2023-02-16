@@ -36,7 +36,7 @@
 	global data 	 "${path}\01.Data"    
 	global thedo     "${path}\02.Dofile"            
 	global theado    "${thedo}\ados"	     
-	global xls_tool  "${path}\03.Tool\Example_FiscalSim.xlsx"
+	global xls_tool  "${path}\03.Tool\Example_FiscalSim_GitHub.xlsx"
 *===============================================================================
 		*Run necessary ado files
 *===============================================================================
@@ -95,3 +95,6 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 	*Post-simulation stage (needs to be run for every scneario)
 	
 	do "${thedo}\12_output.do"
+	
+	
+	
