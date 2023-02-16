@@ -37,7 +37,6 @@ qui:gen double `genptot' = .
 mata: st_store(.,tokens("`genptot' `genpind'"),"`touse'", _indeff(_A,_fixed,_dp))
 end
 
-
 mata
 function _indeff(A,fixed,dp){
 	

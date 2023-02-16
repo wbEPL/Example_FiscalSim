@@ -1,10 +1,11 @@
 *===============================================================================
 * Example FiscalSim - fiscal microsimulation model for hypothetical country. 
-* Prepared by EPL team (Mikhail Matytsin with inputs from Daniel Valderrama Gonzalez, Haydeeliz Carrasco Nunez, Maya Goldman and Eduard Bukin)
+* Prepared by EPL team (Mikhail Matytsin with inputs from Daniel Valderrama, Haydeeliz Carrasco Nunez, Maya Goldman and Eduard Bukin)
 * December 2022 - January-February 2023
 *===============================================================================
 	set more off
 	clear all
+	
 	set type double, permanently
 	
 	*Please change this to your own path
@@ -15,6 +16,18 @@
 	else if "`c(username)'" == "WB526693" {
 		global path "C:\Users\wb526693\Github_projects\Example_FiscalSim" // PUT YOU PATH HERE!!!
 	}
+	else if "`c(username)'" == "wb532966" {
+		global path "C:\Users\wb532966\CEQ\Example_FiscalSim" // PUT YOU PATH HERE!!!
+	} 
+	else if "`c(username)'" == "WB419055" {
+	
+		global path "C:/Users/`c(username)'/OneDrive - WBG/Example_FiscalSim" // PUT YOU PATH HERE!!!
+	} 
+	
+
+	else if "`c(username)'" == "" {
+		global path "" // PUT YOU PATH HERE!!!
+	}
 	
 
 *===============================================================================
@@ -23,7 +36,7 @@
 	global data 	 "${path}\01.Data"    
 	global thedo     "${path}\02.Dofile"            
 	global theado    "${thedo}\ados"	     
-	global xls_tool  "${path}\03.Tool\Example_FiscalSim.xlsx"
+	global xls_tool  "${path}\03.Tool\Example_FiscalSim_GitHub.xlsx"
 *===============================================================================
 		*Run necessary ado files
 *===============================================================================
@@ -82,3 +95,6 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 	*Post-simulation stage (needs to be run for every scneario)
 	
 	do "${thedo}\12_output.do"
+	
+	
+	

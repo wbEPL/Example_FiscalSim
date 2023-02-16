@@ -1,30 +1,90 @@
 *Calculating the net expenditures for the survey year
 
-*PREPARE PRE-FISCAL EXPENDITURES FOR INDIRECT TAXES
-* VAT indirect effect:
-import excel using "$xls_tool", sheet(IO) first clear 
-drop sector_name
+/* ------------------------------------
+ ------------------------------------
+1. Indirect effects of VAT on prices 
+ ------------------------------------
+--------------------------------------*/
 
-isid sector
-mvencode VAT_rate_SY VAT_exempt_SY sect_*, mv(0) override // make sure that none of the coefficient is missing
-gen dp = - VAT_rate_SY
-gen fixed = 1 - VAT_exempt_SY // all except exempted sector
-	assert dp == 0 if fixed == 0
+/* ------------------------------------
+1.A Expanding IO matrix 
+ --------------------------------------*/
 
-costpush sect_*, fixed(fixed) price(dp) genptot(VAT_tot_eff_SY) genpind(VAT_ind_eff_SY) fix
+import excel using "$xls_tool", sheet(IO) first clear //load technical coefficients 
+local list ""
 
-keep sector VAT_ind_eff_SY
-isid sector
+des VAT_rate_SY VAT_exempt_SY VAT_exempt_share_SY sect_1-sect_16 , varlist
+foreach v in `r(varlist)'  { 
+	assert `v'!=. // No variable should be missing 
+	local list "`list' `v'"
+}
+keep `list' sector // // to prevent not using variables from the policy year 
+
+// Consistency between policies 
+assert  VAT_exempt_share_SY>0   if VAT_exempt_SY==1 // all exempted sector should have a exemption share 
+assert  VAT_exempt_share_SY==0  if VAT_exempt_SY==0 // all non exempted sector should have either zero or missing  
+
+tempfile io_original_SY 
+save `io_original_SY', replace 
+
+vatmat sect_1-sect_16, exempt(VAT_exempt_SY) pexempt(VAT_exempt_share_SY) sector(sector)
+
+/* ------------------------------------
+1.B  Estimating indirect effects of VAT
+ --------------------------------------*/
+
+*Fixed sectors 
+local thefixed 4 // Energy and basic services completely regulated. Also int trade sectors 
+gen fixed=0
+foreach var of local thefixed {
+	replace fixed=1  if  sector==`var'
+	replace exempted=0 if fixed==1 //  sector is either exempted or fixed 
+}
+
+*VAT rates (sector level VAT)
+merge m:1 sector using `io_original_SY', assert(master matched) keepusing(VAT_rate_SY) nogen
+
+ren VAT_rate_SY shock
+replace shock=-shock // To match code that aggregates income 
+replace shock=0  if exempted==1
+replace shock=0  if shock==.
+
+*No price control sectors 
+gen cp=1-fixed
+
+*vatable sectors 
+gen vatable=1-fixed-exempted
+
+*Indirect effects 
+*gen indirect_effect_iva=0
+
+vatpush sector_1-sector_32 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_SY)
+
+keep sector VAT_ind_eff_SY exempted
+
 tempfile ind_effect_VAT_SY
-save `ind_effect_VAT_SY', replace
+save `ind_effect_VAT_SY'
 
-* Import VAT rates (for direct effect)
-import excel using "$xls_tool", sheet(VAT) first clear 
+
+/* ------------------------------------
+ ------------------------------------
+2. Direct effects of VAT on prices 
+ ------------------------------------
+--------------------------------------*/
+
+import excel using "$xls_tool", sheet(VAT) first clear
+ 
 replace VAT_rate_SY = - VAT_rate_SY
-keep exp_type sector VAT_rate_SY
+keep exp_type sector VAT_rate_SY VAT_exempt_SY
 isid exp_type
 tempfile VAT_rates_SY
 save `VAT_rates_SY', replace
+
+/* ------------------------------------
+ ------------------------------------
+3. Subsidy Indirect effects on prices 
+ ------------------------------------
+--------------------------------------*/
 
 *Fuel indirect effects
 import excel using "$xls_tool", sheet(IO) first clear 
@@ -44,16 +104,34 @@ isid sector
 tempfile ind_effect_gas_SY
 save `ind_effect_gas_SY', replace
 
-*Calculate net expenditure pre-VAT
-use "${data}\Example_FiscalSim_exp_data_raw.dta", clear
 
-gen int exp_form 	= 2 - place_purchase
+
+/* ------------------------------------
+ ------------------------------------
+4. Expenditures net from VAT 
+ ------------------------------------
+--------------------------------------*/
+
+*Calculate net expenditure pre-VAT
+use "${data}/Example_FiscalSim_exp_data_raw.dta", clear 
+
+gen int exp_form = 2 - place_purchase
 rename exp_value exp_gross_SY
 
-merge m:1 exp_type using `VAT_rates_SY', nogen assert(match)
-merge m:1 sector using `ind_effect_VAT_SY', nogen assert(match using) keep(match)
+	
+merge m:1 exp_type using `VAT_rates_SY', nogen assert(match) // notice here we merge!! product-exemption level
+ren VAT_exempt_SY exempted
+replace VAT_rate_SY=0 if exempted==1 // this should not be needed 
 
-gen exp_net_SY = exp_gross_SY  / (1 - exp_form * VAT_rate_SY) / (1 - VAT_ind_eff_SY)
+merge m:1 sector exempted using `ind_effect_VAT_SY', nogen  assert(match using) keep(match)
+*ACA
+gen exp_net_SY = exp_gross_SY  / ( (1 - exp_form * VAT_rate_SY) * (1 - VAT_ind_eff_SY) )
+
+/* ------------------------------------
+ ------------------------------------
+5. Expenditures net from Subsidies
+ ------------------------------------
+--------------------------------------*/
 
 *PREPARE PRE-FISCAL EXPENDITURES FOR INDIRECT SUBSIDIES 
 *Calculate net expenditure (before fuel subsidy)
