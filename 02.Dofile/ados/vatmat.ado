@@ -1,4 +1,5 @@
-*! vat_mat v1
+*! vatmat v1
+* Juan Pablo Baquero - WBG - Equity Policy Lab
 * Daniel Valderrama - WBG - Equity Policy Lab
 
 *mata: mata clear 
