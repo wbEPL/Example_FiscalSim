@@ -10,21 +10,21 @@
 	
 	*Please change this to your own path
 	if "`c(username)'" == "WB395877" {
-		global path "C:\Users\wb395877\GitHub\Example_FiscalSim" 
+		global path "C:\Users\wb395877\GitHub\Example_FiscalSim" // Misha's path
 	}
 	
 	else if "`c(username)'" == "WB526693" {
 		global path "C:\Users\wb526693\Github_projects\Example_FiscalSim" // PUT YOU PATH HERE!!!
 	}
+	
 	else if "`c(username)'" == "wb532966" {
 		global path "C:\Users\wb532966\CEQ\Example_FiscalSim" // PUT YOU PATH HERE!!!
 	} 
-	else if "`c(username)'" == "WB419055" {
 	
+	else if "`c(username)'" == "WB419055" {
 		global path "C:/Users/`c(username)'/OneDrive - WBG/Example_FiscalSim" // PUT YOU PATH HERE!!!
 	} 
 	
-
 	else if "`c(username)'" == "" {
 		global path "" // PUT YOU PATH HERE!!!
 	}
@@ -60,7 +60,7 @@ global direct_taxes 				PIT
 global pensions 					lab_pens  
 global direct_transfers 			soc_pens unem_ben child_ben GMI other_ben
 
-global indirect_taxes 				VAT_dir VAT_ind	Excises									   
+global indirect_taxes 				VAT_dir VAT_ind	excises									   
 global indirect_subsidies 			electr_sub gas_sub_dir gas_sub_ind
 
 global health  						health_in health_out 									   
@@ -77,8 +77,8 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 	
 	*Pre-simulation stage (needs to be run only once to get the input data)
 
-	do "${thedo}\01_input_data.do"
-	do "${thedo}\02_gross_market_income.do"
+	*do "${thedo}\01_input_data.do"
+	*do "${thedo}\02_gross_market_income.do"
 	do "${thedo}\03_net_expenditures.do"
 	
 	*Simulation stage (needs to be run for every scneario)
