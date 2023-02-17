@@ -93,7 +93,6 @@ import excel using "$xls_tool", sheet(excises) first clear
 replace excise_rate_PY = - excise_rate_PY
 keep exp_type excise_rate_PY
 isid exp_type
-destring exp_type, replace 
 tempfile Excises_PY
 save `Excises_PY', replace
 
