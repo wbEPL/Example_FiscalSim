@@ -71,10 +71,9 @@ save `ind_effect_VAT_PY'
 
 /* ------------------------------------
  ------------------------------------
-2. Direct effects of VAT on prices 
+1.C Direct effects of VAT on prices 
  ------------------------------------
 --------------------------------------*/
-
 
 import excel using "$xls_tool", sheet(VAT) first clear 
 replace VAT_rate_PY = - VAT_rate_PY
@@ -85,17 +84,52 @@ save `VAT_rates_PY', replace
 
 /* ------------------------------------
  ------------------------------------
-3. Welfare impacts of VAT
+1.D Excise
+ ------------------------------------
+--------------------------------------*/
+
+import excel using "$xls_tool", sheet(excises) first clear
+
+replace excise_rate_PY = - excise_rate_PY
+keep exp_type excise_rate_PY
+isid exp_type
+destring exp_type, replace 
+tempfile Excises_PY
+save `Excises_PY', replace
+
+
+/* ------------------------------------
+ ------------------------------------
+2. Welfare impacts of VAT
  ------------------------------------
 --------------------------------------*/
 
 use "${data}\02.intermediate\Example_FiscalSim_indirect_subs_data_long.dta", clear // What if SY activated 
 
+
+/* ------------------------------------
+ ------------------------------------
+2.A Welfare impacts of Excise
+ ------------------------------------
+--------------------------------------*/
+
+merge m:1 exp_type using `Excises_PY', nogen assert(match master) keep(master match) 
+replace excise_rate_PY=0 if excise_rate_PY==.
+gen exp_gross_excise_PY = exp_gross_subs_PY  * (1 - excise_rate_PY) // notice excise rate is negative here
+
+gen Excises = exp_gross_subs_PY - exp_gross_excise_PY
+
+/* ------------------------------------
+ ------------------------------------
+2.B Welfare impacts of VAT
+ ------------------------------------
+--------------------------------------*/
+
 merge m:1 exp_type using `VAT_rates_PY', nogen assert(match)
 ren VAT_exempt_PY exempted
 merge m:1 sector exempted using `ind_effect_VAT_PY', nogen assert(match using) keep(match)
 
-gen exp_gross_PY = exp_gross_subs_PY  * (1 - exp_form * VAT_rate_PY) * (1 - VAT_ind_eff_PY)
+gen exp_gross_PY = exp_gross_excise_PY  * (1 - exp_form * VAT_rate_PY) * (1 - VAT_ind_eff_PY)
 
 	if $SY_consistency_check == 1 { 
 		merge 1:1 hh_id exp_type exp_form using "${data}\01.pre-simulation\Example_FiscalSim_exp_data_SY.dta", nogen assert(match) keepusing(exp_net_SY exp_gross_SY)
@@ -105,11 +139,11 @@ gen exp_gross_PY = exp_gross_subs_PY  * (1 - exp_form * VAT_rate_PY) * (1 - VAT_
 		assert exp_gross_PY == exp_gross_SY if exp_net_SY == 0
 	}
 
-gen VAT = exp_gross_subs_PY - exp_gross_PY
+gen VAT = exp_gross_excise_PY - exp_gross_PY
 
 
 * if we would like to separate the direct and indirect effect this can be done:
-gen VAT_dir = exp_gross_subs_PY  * exp_form * VAT_rate_PY
+gen VAT_dir = exp_gross_excise_PY  * exp_form * VAT_rate_PY
 gen VAT_ind = VAT - VAT_dir // the direct and indirect effects are rather cumulative than additive, recasting indirect effects in this ways assures additivity
 
 foreach var in $indirect_taxes {
@@ -130,6 +164,7 @@ foreach var in $indirect_taxes {
 
 label variable VAT_dir "Value added tax (direct effect)"
 label variable VAT_ind "Value added tax (indirect effect)"
+label variable Excises "Excises"
 
 keep hh_id ${indirect_taxes}
 mvencode ${indirect_taxes}, mv(0) override  

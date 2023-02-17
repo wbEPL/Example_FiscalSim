@@ -60,7 +60,7 @@ global direct_taxes 				PIT
 global pensions 					lab_pens  
 global direct_transfers 			soc_pens unem_ben child_ben GMI other_ben
 
-global indirect_taxes 				VAT_dir VAT_ind										   
+global indirect_taxes 				VAT_dir VAT_ind	Excises									   
 global indirect_subsidies 			electr_sub gas_sub_dir gas_sub_ind
 
 global health  						health_in health_out 									   

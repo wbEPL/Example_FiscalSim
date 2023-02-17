@@ -20,30 +20,24 @@ program define vatpush, rclass
 	keep if `touse'
 
 	*Reading the matrix of technical coefficients 
-	gen double `gen'=0
-	
-	//Creating matrix elements for indirect 
-	mata : st_view(YY=., ., "`gen'",.) // data will be modifying 
 	mata: A=st_data(., "`varlist'",.)
 	mata: cp=st_data(., "`costpush'",.)'
 	mata: shock=st_data(., "`shock'",.)'
 	mata: vatable=st_data(., "`vatable'",.)'		
 	mata: exempt=st_data(., "`exempt'",.)'
 	
-	
+	//Creating matrix elements for indirect 
+	gen double `gen'=0
+	mata : st_view(YY=., ., "`gen'",.) // data will be modifying 
 	mata:  YY[.,.]=indirect2(A,cp,shock,vatable,exempt)'
-
-	*Price control sectors do not have indirect effect 
-	replace `gen'=0   if cp==0
+	
+	replace `gen'=0   if cp==0 // *Price control sectors do not have indirect effect 
 	lab var `gen' "Indirect shock"
-
+	*drop cp
 end 
 
 mata:
-	
-	function indirect2(a,cp,shock,vatable,exempt)
-	
-	{
+	function indirect2(a,cp,shock,vatable,exempt) {
 		
 	alpha_cp=diag(cp) 
 	
@@ -56,8 +50,7 @@ mata:
 	indirect=shock*alpha_vat*a*alpha_exempt*K
 	return(indirect)
 		
-	}
-	
+	}	
 end
 
 

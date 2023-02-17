@@ -2,7 +2,7 @@
 
 /* ------------------------------------
  ------------------------------------
-1. Indirect effects of VAT on prices 
+1. Indirect and direct effects of VAT, Excises and Subsidies 
  ------------------------------------
 --------------------------------------*/
 
@@ -56,8 +56,6 @@ gen cp=1-fixed
 gen vatable=1-fixed-exempted
 
 *Indirect effects 
-*gen indirect_effect_iva=0
-
 vatpush sector_1-sector_32 , exempt(exempted) costpush(cp) shock(shock) vatable(vatable) gen(VAT_ind_eff_SY)
 
 keep sector VAT_ind_eff_SY exempted
@@ -67,9 +65,7 @@ save `ind_effect_VAT_SY'
 
 
 /* ------------------------------------
- ------------------------------------
-2. Direct effects of VAT on prices 
- ------------------------------------
+1.C Direct effects of VAT on prices 
 --------------------------------------*/
 
 import excel using "$xls_tool", sheet(VAT) first clear
@@ -80,11 +76,24 @@ isid exp_type
 tempfile VAT_rates_SY
 save `VAT_rates_SY', replace
 
+
 /* ------------------------------------
- ------------------------------------
-3. Subsidy Indirect effects on prices 
- ------------------------------------
---------------------------------------*/
+1.D. Excises 
+------------------------------------*/
+
+import excel using "$xls_tool", sheet(excises) first clear
+
+replace excise_rate_SY = - excise_rate_SY
+keep exp_type excise_rate_SY
+isid exp_type
+destring exp_type, replace 
+tempfile Excises_SY
+save `Excises_SY', replace
+
+
+/*------------------------------------
+1.E Subsidy Indirect effects on prices 
+------------------------------------*/
 
 *Fuel indirect effects
 import excel using "$xls_tool", sheet(IO) first clear 
@@ -105,12 +114,16 @@ tempfile ind_effect_gas_SY
 save `ind_effect_gas_SY', replace
 
 
-
 /* ------------------------------------
  ------------------------------------
-4. Expenditures net from VAT 
+2. Netting down spending 
  ------------------------------------
 --------------------------------------*/
+
+
+/*------------------------------------
+2.A Expenditures net from VAT 
+------------------------------------*/
 
 *Calculate net expenditure pre-VAT
 use "${data}/Example_FiscalSim_exp_data_raw.dta", clear 
@@ -124,14 +137,20 @@ ren VAT_exempt_SY exempted
 replace VAT_rate_SY=0 if exempted==1 // this should not be needed 
 
 merge m:1 sector exempted using `ind_effect_VAT_SY', nogen  assert(match using) keep(match)
-*ACA
 gen exp_net_SY = exp_gross_SY  / ( (1 - exp_form * VAT_rate_SY) * (1 - VAT_ind_eff_SY) )
 
-/* ------------------------------------
- ------------------------------------
-5. Expenditures net from Subsidies
- ------------------------------------
---------------------------------------*/
+/*------------------------------------
+2.B Expenditures net from Excises
+ ------------------------------------*/
+
+merge m:1 exp_type using `Excises_SY', nogen assert(match master) keep(master match) 
+replace excise_rate_SY=0 if excise_rate_SY==.
+replace  exp_net_SY = exp_net_SY  / (1 - excise_rate_SY) // Notice excise is negative here so actual formula is 1/(1+Excise rate)
+
+
+/*------------------------------------
+2.C Expenditures net from Subsidies
+ ------------------------------------*/
 
 *PREPARE PRE-FISCAL EXPENDITURES FOR INDIRECT SUBSIDIES 
 *Calculate net expenditure (before fuel subsidy)
