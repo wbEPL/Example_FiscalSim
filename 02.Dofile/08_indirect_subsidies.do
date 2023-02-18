@@ -67,7 +67,7 @@ save `ind_effect_gas_PY', replace
 use "${data}\02.intermediate\Example_FiscalSim_exp_data_PY.dta", clear
 merge m:1 sector using `ind_effect_gas_PY', nogen assert(match using) keep(match)
 
-gen gas_subs = ${gas_subs} if exp_type == 90
+gen gas_subs = ${gas_subs} if exp_type == 92
 	replace gas_subs = 0 if mi(gas_subs)
 
 gen exp_gross_subs_PY = exp_net_PY * (1 - gas_subs) * (1 - gas_sub_ind_eff_PY)

@@ -45,7 +45,6 @@ foreach var of local thefixed {
 merge m:1 sector using `io_original_SY', assert(master matched) keepusing(VAT_rate_SY) nogen
 
 ren VAT_rate_SY shock
-replace shock=-shock // To match code that aggregates income 
 replace shock=0  if exempted==1
 replace shock=0  if shock==.
 
@@ -70,7 +69,6 @@ save `ind_effect_VAT_SY'
 
 import excel using "$xls_tool", sheet(VAT) first clear
  
-replace VAT_rate_SY = - VAT_rate_SY
 keep exp_type sector VAT_rate_SY VAT_exempt_SY
 isid exp_type
 tempfile VAT_rates_SY
@@ -83,7 +81,6 @@ save `VAT_rates_SY', replace
 
 import excel using "$xls_tool", sheet(excises) first clear
 
-replace excise_rate_SY = - excise_rate_SY
 keep exp_type excise_rate_SY
 isid exp_type
 tempfile Excises_SY
@@ -136,7 +133,7 @@ ren VAT_exempt_SY exempted
 replace VAT_rate_SY=0 if exempted==1 // this should not be needed 
 
 merge m:1 sector exempted using `ind_effect_VAT_SY', nogen  assert(match using) keep(match)
-gen exp_net_SY = exp_gross_SY  / ( (1 - exp_form * VAT_rate_SY) * (1 - VAT_ind_eff_SY) )
+gen exp_net_SY = exp_gross_SY  / ( (1 + exp_form * VAT_rate_SY) * (1 + VAT_ind_eff_SY) )
 
 /*------------------------------------
 2.B Expenditures net from Excises
@@ -144,7 +141,7 @@ gen exp_net_SY = exp_gross_SY  / ( (1 - exp_form * VAT_rate_SY) * (1 - VAT_ind_e
 
 merge m:1 exp_type using `Excises_SY', nogen assert(match master) keep(master match) 
 replace excise_rate_SY=0 if excise_rate_SY==.
-replace  exp_net_SY = exp_net_SY  / (1 - excise_rate_SY) // Notice excise is negative here so actual formula is 1/(1+Excise rate)
+replace  exp_net_SY = exp_net_SY  / (1 + excise_rate_SY) 
 
 
 /*------------------------------------
@@ -157,7 +154,7 @@ merge m:1 sector using `ind_effect_gas_SY', nogen assert(match using) keep(match
 
 //Net expenditure (before VAT and before subsidy)
 replace exp_net_SY = exp_net_SY / (1 - gas_sub_ind_eff_SY) // indirect effect for all goods and services
-replace exp_net_SY = exp_net_SY / (1 - 0.1)  if exp_type == 90 //direct effect for gas.
+replace exp_net_SY = exp_net_SY / (1 - 0.1)  if exp_type == 92 //direct effect for gas.
 
 isid hh_id exp_type exp_form
 keep hh_id exp_type exp_form exp_net_SY exp_gross_SY sector
@@ -168,7 +165,7 @@ save "${data}\01.pre-simulation\Example_FiscalSim_exp_data_SY.dta", replace
 * Imputing electricity consumption based on a block tariff structure
 * we assume that the industrial consumers pay full electricity tariff, that is why there is no indirect effect.
 
-keep if exp_type == 88 // electricity expenditures
+keep if exp_type == 90 // electricity expenditures
 
 * electricity expenditures are not subject to VAT (in our example, it might be different in your country), so we can use any of the net/gross expenditures to impute the electricity consumption
 gen electr_exp = exp_net_SY / 12 // convert annual expenditures to monthly (norms are in monthly terms)
