@@ -13,6 +13,9 @@
 
 	* Health 
 	* 5. Identify those benefitting from health transfers in the survey
+	* 6. Allocate the health subsidies by level of healthcare
+
+	* 7. Save the dataset
 	******************************************************************************
 
 
@@ -44,6 +47,7 @@
 		lab var exp_educ_tert_hh "Exp educ. tertiary"
 
 		egen fee_educ_hh = rowtotal(exp_educ_trns_hh exp_educ_serv_hh exp_educ_psec_hh exp_educ_tert_hh)
+		lab var fee_educ_hh "Education user-fees"
 		
 		merge 1:m hh_id using "${data}\proc\Example_FiscalSim_dem_inc_data.dta", nogen assert(match using) keepusing(p_id age hh_weight hh_weight study med_ins hospital_days)
 		ren study educ_level
@@ -107,33 +111,35 @@
 		lab var edu_psec_in "Post-secondary school benefit"
 		lab var edu_tert_in "Tertiary school benefit" 
 
-		*4.4 Check if the subsidy net of transport expenditures is negative 
-		/* If we subtract transport fees from the household subsidy amount we get 44, 24, 62 and 54 negative subsidy amounts respectively. 
-			Try allocating an average value per decile. */
-		
-		g exp_educ_trns_mean = 0
-		assert !mi(exp_educ_trns_hh)
-		qui sum exp_educ_trns_hh [fw=int(hh_weight)] if exp_educ_trns_hh > 0
-		disp r(mean)
-		replace exp_educ_trns_mean = r(mean) if exp_educ_trns_hh > 0
+		/*4.4 Check if the subsidy net of transport expenditures is negative 
+			
+			/* If we subtract transport fees from the household subsidy amount we get 44, 24, 62 and 54 negative subsidy amounts respectively. 
+				Try allocating an average value per decile. */
+			
+			g exp_educ_trns_mean = 0
+			assert !mi(exp_educ_trns_hh)
+			qui sum exp_educ_trns_hh [fw=int(hh_weight)] if exp_educ_trns_hh > 0
+			disp r(mean)
+			replace exp_educ_trns_mean = r(mean) if exp_educ_trns_hh > 0
 
-		foreach type in prim seco psec tert{
-			bysort hh_id: egen edu_`type'_hh = total(edu_`type'_in)
-		}
-		egen edu_hh = rowtotal(edu_prim_hh edu_seco_hh edu_psec_hh edu_tert_hh)
-		count if edu_hh < exp_educ_trns_hh  //18 negatives 
-		count if edu_hh < exp_educ_trns_mean //18 negatives 
+			foreach type in prim seco psec tert{
+				bysort hh_id: egen edu_`type'_hh = total(edu_`type'_in)
+			}
+			egen edu_hh = rowtotal(edu_prim_hh edu_seco_hh edu_psec_hh edu_tert_hh)
+			count if edu_hh < exp_educ_trns_hh  //18 negatives 
+			count if edu_hh < exp_educ_trns_mean //18 negatives */
 
-		//Conclusion: do not subtract user-fees from subsidy amount. 
+			//Conclusion: do not subtract user-fees from subsidy amount. 
 
 	* 5. Identify those benefitting from health transfers in the survey
 	******************************************************************************
 	/* Here we use a combined approach: 
-		a. We use the insurance-value approach to allocate outpatient based care, and 
-		b. We use the actual-use appraoch to allocate inpatient care. 
+		a. We use the insurance-value approach to allocate outpatient-based care, and 
+		b. We use the actual-use approach to allocate inpatient care. 
 
-	We do this because we don't have information on numbers of visits to outpatient services. 
-	Note that administrative numbers on enrollment are not available here, and so we use the numbers in the survey multiplied by a scaling factor */
+	Note that in this example we demonstrate the case where administrative numbers on numbers of visits to outpatient services are not available. 
+		We therefore use the numbers in the survey multiplied by an optional scaling factor. 
+	 */
 
 		*5.1. Insurance-value approach 
 		gen hlt_outp_ri = (med_ins == 1) 
