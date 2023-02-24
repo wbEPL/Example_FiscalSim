@@ -14,7 +14,7 @@ merge m:1 hh_id using "${data}\02.intermediate\Example_FiscalSim_indirect_taxes_
 
 merge m:1 hh_id using "${data}\02.intermediate\Example_FiscalSim_indirect_subsidies_data.dta", nogen
 
-merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_inkind_transefrs_data.dta", nogen
+merge 1:1 hh_id p_id using "${data}\02.intermediate\Example_FiscalSim_inkind_transfers_data.dta", nogen
 
 global program_list 
 foreach aggregate in market_income $comp_list {
