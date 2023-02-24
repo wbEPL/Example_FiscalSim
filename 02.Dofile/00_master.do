@@ -4,6 +4,7 @@
 * December 2022 - January-February 2023
 *===============================================================================
 	set more off
+	macro drop _all
 	clear all
 	
 	set type double, permanently
@@ -23,6 +24,10 @@
 	
 	else if "`c(username)'" == "WB419055" {
 		global path "C:/Users/`c(username)'/OneDrive - WBG/Example_FiscalSim" // PUT YOU PATH HERE!!!
+	} 
+
+	else if "`c(username)'" == "Maya" {
+		global path "C:\Users\User\Documents\GitHub\WB-EPL\Example_FiscalSim" // PUT YOU PATH HERE!!!
 	} 
 	
 	else if "`c(username)'" == "" {
@@ -63,8 +68,10 @@ global direct_transfers 			soc_pens unem_ben child_ben GMI other_ben
 global indirect_taxes 				VAT_dir VAT_ind	excises									   
 global indirect_subsidies 			electr_sub gas_sub_dir gas_sub_ind
 
-global health  						health_in health_out 									   
-global education					educ_prim educ_sec educ_tert
+global health  						hlt_outp_in hlt_hosp_in 									   
+global education					edu_prim_in edu_seco_in edu_psec_in edu_tert_in
+global healthfees					fee_hlth_in
+global educfees						fee_educ_in
 
 global weight 						ind_weight
 global povline 						povline_nat //povline_int32 povline_int55 // you may choose between a few available poverty lines (for example, national and international)
@@ -77,8 +84,8 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 	
 	*Pre-simulation stage (needs to be run only once to get the input data)
 
-	*do "${thedo}\01_input_data.do"
-	*do "${thedo}\02_gross_market_income.do"
+	do "${thedo}\01_input_data.do"
+	do "${thedo}\02_gross_market_income.do"
 	do "${thedo}\03_net_expenditures.do"
 	
 	*Simulation stage (needs to be run for every scneario)
