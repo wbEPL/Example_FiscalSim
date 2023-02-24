@@ -5,7 +5,7 @@
 cap prog drop vatpush
 cap set matastrict off
 program define vatpush, rclass
-	version 15.2
+	version 14.2
 	#delimit ;
 	syntax varlist (min=2 numeric) [if] [in], 
 		EXEMpt(varlist max=1 numeric)
