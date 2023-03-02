@@ -24,6 +24,8 @@ foreach aggregate in market_income $comp_list {
 	}
 	egen `aggregate' = rowtotal(${`aggregate'}) 
 }
+replace fee_educ_hh = education if fee_educ_hh > education
+	//Truncate the net in-kind education benefits at 0 by making sure that the userfees are never larger than the in-kind education benefit 
 
 gen net_market_income = market_income + direct_taxes + SSC
 
@@ -39,7 +41,7 @@ assert disposable_income == gross_income + direct_taxes + SSC
 
 gen consumable_income = disposable_income + indirect_subsidies + indirect_taxes
 
-gen final_income = consumable_income + health + education
+gen final_income = consumable_income + health + (education - fee_educ_hh)
 
 *converting individual-level data to average per capita values
 foreach var in $income_list {

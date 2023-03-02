@@ -33,6 +33,10 @@
 
 	* 2. Sum the user-fees / co-payments 
 	******************************************************************************
+		/* Assumptions: 
+		a. we don't include transport, because these do not go back into the pool of government finances. 
+		b. we assume that we have checked, and the education services and post-secondary and tertiary spending does go back into the pool of gov. finances and so we 
+			need to subtract this off the in-kind benefit amount. */
 		use "${data}\proc\Example_FiscalSim_exp_data.dta", clear
 		g exp_educ_trns_hh = exp_net_SY if exp_type == 79
 		g exp_educ_serv_hh = exp_net_SY if exp_type == 80
@@ -47,7 +51,7 @@
 		lab var exp_educ_tert_hh "Exp educ. tertiary"
 
 		egen fee_educ_hh = rowtotal(exp_educ_serv_hh exp_educ_psec_hh exp_educ_tert_hh)
-			//we don't include transport, because these do not go back into the pool of government finances
+			
 		lab var fee_educ_hh "Education user-fees"
 		
 		merge 1:m hh_id using "${data}\proc\Example_FiscalSim_dem_inc_data.dta", nogen assert(match using) keepusing(p_id age hh_size hh_weight ind_weight study med_ins hospital_days)
@@ -137,6 +141,9 @@
 			g edu_netb_hh = 0 
 			lab var edu_netb_hh "In-kind educ. benefits net of userfees"
 			replace edu_netb_hh = edu_hh - fee_educ_ps_mean
+			ren fee_educ_ps_mean fee_educ_hh 
+			lab var fee_educ_hh "Userfees"
+			codebook fee_educ_hh
 
 			//Conclusion: subtract the average value of education userfees from the total education in-kind benefit. 
 
@@ -180,6 +187,9 @@
 
 	* 7. Save the dataset 
 	******************************************************************************
+		*egen health = rowtotal(hlt_outp_in hlt_hosp_in)
+		*egen education = rowtotal(edu_prim_in edu_seco_in edu_tert_in)
+
 		keep hh_id p_id ${health} ${education} ${educfees} 
 		mvencode ${health} ${education} ${educfees}, mv(0) override 
 
