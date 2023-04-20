@@ -38,18 +38,18 @@
 *===============================================================================
 		*DO NOT MODIFY BEYOND THIS POINT
 *===============================================================================		
-	global data 	 "${path}\01.Data"    
-	global thedo     "${path}\02.Dofile"            
-	global theado    "${thedo}\ados"	     
-	global xls_tool  "${path}\03.Tool\Example_FiscalSim.xlsx"
+	global data 		"${path}\01.Data"    
+	global do-files     "${path}\02.Dofile"            
+	global ado-files    "${do-files}\ados"	     
+	global xls_tool  	"${path}\03.Tool\Example_FiscalSim.xlsx"
 *===============================================================================
 		*Run necessary ado files
 *===============================================================================
 	
-	local files : dir "$theado" files "*.ado"
+	local files : dir "$ado-files" files "*.ado"
 	foreach f of local files{
 		dis in yellow "`f'"
-		qui: run "$theado\\`f'"
+		qui: run "$ado-files\\`f'"
 	}
 
 *===============================================================================
@@ -83,24 +83,24 @@ global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes 
 	
 	*Pre-simulation stage (needs to be run only once to get the input data)
 
-	do "${thedo}\01_input_data.do"
-	do "${thedo}\02_gross_market_income.do"
-	do "${thedo}\03_net_expenditures.do"
+	do "${do-files}\01_input_data.do"
+	do "${do-files}\02_gross_market_income.do"
+	do "${do-files}\03_net_expenditures.do"
 	
 	*Simulation stage (needs to be run for every scneario)
 	
-	do "${thedo}\04_income_uprating.do"
-	do "${thedo}\05_SSC_direct_taxes.do"
-	do "${thedo}\06_pensions_direct_transfers.do"
-	do "${thedo}\07_expenditure_adjustment.do"
-	do "${thedo}\08_indirect_subsidies.do"
-	do "${thedo}\09_indirect_taxes.do"
-	do "${thedo}\10_inkind_transfers.do"
-	do "${thedo}\11_income_concepts.do"
+	do "${do-files}\04_income_uprating.do"
+	do "${do-files}\05_SSC_direct_taxes.do"
+	do "${do-files}\06_pensions_direct_transfers.do"
+	do "${do-files}\07_expenditure_adjustment.do"
+	do "${do-files}\08_indirect_subsidies.do"
+	do "${do-files}\09_indirect_taxes.do"
+	do "${do-files}\10_inkind_transfers.do"
+	do "${do-files}\11_income_concepts.do"
 	
 	*Post-simulation stage (needs to be run for every scneario)
 	
-	do "${thedo}\12_output.do"
+	do "${do-files}\12_output.do"
 	
 	
 	

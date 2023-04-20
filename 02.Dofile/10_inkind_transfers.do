@@ -33,11 +33,15 @@
 
 	* 2. Sum the user-fees / co-payments 
 	******************************************************************************
+<<<<<<< Updated upstream
 		/* Assumptions: 
 		a. we don't include transport, because these do not go back into the pool of government finances. 
 		b. we assume that we have checked, and the education services and post-secondary and tertiary spending does go back into the pool of gov. finances and so we 
 			need to subtract this off the in-kind benefit amount. */
 		use "${data}\proc\Example_FiscalSim_exp_data.dta", clear
+=======
+		use "${data}\01.pre-simulation\Example_FiscalSim_exp_data_SY.dta", clear
+>>>>>>> Stashed changes
 		g exp_educ_trns_hh = exp_net_SY if exp_type == 79
 		g exp_educ_serv_hh = exp_net_SY if exp_type == 80
 		g exp_educ_psec_hh = exp_net_SY if exp_type == 81
@@ -54,7 +58,7 @@
 			
 		lab var fee_educ_hh "Education user-fees"
 		
-		merge 1:m hh_id using "${data}\proc\Example_FiscalSim_dem_inc_data.dta", nogen assert(match using) keepusing(p_id age hh_size hh_weight ind_weight study med_ins hospital_days)
+		merge 1:m hh_id using "${data}\01.pre-simulation\Example_FiscalSim_dem_inc_data.dta", nogen assert(match using) keepusing(p_id age hh_size hh_weight ind_weight study med_ins hospital_days)
 		ren study educ_level
 		lab var educ_level "Level of education"
 		order hh_id p_id
