@@ -33,15 +33,13 @@
 
 	* 2. Sum the user-fees / co-payments 
 	******************************************************************************
-<<<<<<< Updated upstream
+
 		/* Assumptions: 
 		a. we don't include transport, because these do not go back into the pool of government finances. 
 		b. we assume that we have checked, and the education services and post-secondary and tertiary spending does go back into the pool of gov. finances and so we 
 			need to subtract this off the in-kind benefit amount. */
-		use "${data}\proc\Example_FiscalSim_exp_data.dta", clear
-=======
 		use "${data}\01.pre-simulation\Example_FiscalSim_exp_data_SY.dta", clear
->>>>>>> Stashed changes
+
 		g exp_educ_trns_hh = exp_net_SY if exp_type == 79
 		g exp_educ_serv_hh = exp_net_SY if exp_type == 80
 		g exp_educ_psec_hh = exp_net_SY if exp_type == 81
@@ -145,9 +143,12 @@
 			g edu_netb_hh = 0 
 			lab var edu_netb_hh "In-kind educ. benefits net of userfees"
 			replace edu_netb_hh = edu_hh - fee_educ_ps_mean
-			ren fee_educ_ps_mean fee_educ_hh 
-			lab var fee_educ_hh "Userfees"
-			codebook fee_educ_hh
+			ren fee_educ_ps_mean fee_educ_ps1 
+			replace fee_educ_ps1 = - fee_educ_ps1
+			lab var fee_educ_ps1 "Userfees"
+			codebook fee_educ_ps1
+			
+
 
 			//Conclusion: subtract the average value of education userfees from the total education in-kind benefit. 
 
