@@ -95,9 +95,12 @@ save `Excises_SY', replace
 import excel using "$xls_tool", sheet(IO) first clear 
 drop sector_name VAT*
 
+global gas_subs_SY = 0.1
+global gas_share = 0.3
+
 isid sector
 mvencode sect_*, mv(0) override // make sure that none of the coefficient is missing
-gen dp = 0.1 * 0.3 if sector == 4 //Price shock: Subsidy removal on Energy sector. We assume that share of gas in the energy sector is 30%. The size of subsidy is 10%
+gen dp = ${gas_subs_SY} * ${gas_share} if sector == 4 //Price shock: Subsidy removal on Energy sector. We assume that share of gas in the energy sector is 30%. The size of subsidy is 10%
 	replace dp = 0 if mi(dp)
 gen fixed = (dp != 0) // Government controls prices on energy sector 
 	assert dp == 0 if fixed == 0
@@ -154,7 +157,7 @@ merge m:1 sector using `ind_effect_gas_SY', nogen assert(match using) keep(match
 
 //Net expenditure (before VAT and before subsidy)
 replace exp_net_SY = exp_net_SY / (1 - gas_sub_ind_eff_SY) // indirect effect for all goods and services
-replace exp_net_SY = exp_net_SY / (1 - 0.1)  if exp_type == 92 //direct effect for gas.
+replace exp_net_SY = exp_net_SY / (1 - ${gas_subs_SY})  if exp_type == 92 //direct effect for gas.
 
 isid hh_id exp_type exp_form
 keep hh_id exp_type exp_form exp_net_SY exp_gross_SY sector
