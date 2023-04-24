@@ -69,8 +69,7 @@ global indirect_taxes 				VAT_dir VAT_ind	excises
 global indirect_subsidies 			electr_sub gas_sub_dir gas_sub_ind
 
 global health  						hlt_outp_in hlt_hosp_in 									   
-global education					edu_prim_in edu_seco_in edu_psec_in edu_tert_in
-global educfees						fee_educ_ps1
+global education					edu_prim_in edu_seco_in edu_psec_in edu_tert_in fee_educ_ps
 
 global weight 						ind_weight
 global povline 						povline_nat //povline_int32 povline_int55 // you may choose between a few available poverty lines (for example, national and international)

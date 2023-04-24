@@ -126,29 +126,38 @@
 				Try allocating an average value per decile. */
 			bysort hh_id: egen hh_edu_size = total(edu_ri)
 			g fee_educ_ps = fee_educ_hh/hh_edu_size
-			
-			g fee_educ_ps_mean = 0
+			lab var fee_educ_ps "Per-student user-fee"
 			assert !mi(fee_educ_hh)
+
+			g fee_educ_ps_mean = 0 
 			qui sum fee_educ_ps [fw=int(hh_weight)] if edu_ri == 1
 			disp r(mean)
 			replace fee_educ_ps_mean = r(mean) if edu_ri > 0
 
-			foreach type in prim seco psec tert{
+			/*foreach type in prim seco psec tert{
 				bysort hh_id: egen edu_`type'_hh = total(edu_`type'_in)
-			}
-			egen edu_hh = rowtotal(edu_prim_hh edu_seco_hh edu_psec_hh edu_tert_hh)
-			count if edu_hh < fee_educ_hh  
-			count if edu_hh < fee_educ_ps_mean 
-
-			g edu_netb_hh = 0 
-			lab var edu_netb_hh "In-kind educ. benefits net of userfees"
-			replace edu_netb_hh = edu_hh - fee_educ_ps_mean
-			ren fee_educ_ps_mean fee_educ_ps1 
-			replace fee_educ_ps1 = - fee_educ_ps1
-			lab var fee_educ_ps1 "Userfees"
-			codebook fee_educ_ps1
+			}*/
+			egen edu_in = rowtotal(edu_prim_in edu_seco_in edu_psec_in edu_tert_in)
+			count if edu_in < fee_educ_ps  
+			count if edu_in < fee_educ_ps_mean  //this option looks better 
+			drop fee_educ_ps
+			ren fee_educ_ps_mean fee_educ_ps
+			sum fee_educ_ps
 			
+			g edu_netb_in = 0 
+			lab var edu_netb_in "In-kind educ. benefits net of userfees"
+			replace edu_netb_in = edu_in - fee_educ_ps
+					
+ 			assert fee_educ_ps <= edu_in
+			replace fee_educ_ps = - fee_educ_ps
+			lab var fee_educ_ps "Userfees"
 
+			qui sum edu_in [w=hh_weight]
+			disp r(sum)/1e6  //534
+
+			qui sum edu_netb_in [w=hh_weight]
+			disp r(sum)/1e6  //481 
+				*codebook fee_educ_ps 
 
 			//Conclusion: subtract the average value of education userfees from the total education in-kind benefit. 
 
