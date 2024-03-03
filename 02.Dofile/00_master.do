@@ -77,7 +77,7 @@ global rank_var 					market_income //choose between market income and market plu
 
 global dem_list 					hh_size ind_weight hh_weight /*age*/ hh_type strata region povline_*
 global income_list  				market_income market_pens_income net_market_income gross_income disposable_income consumable_income final_income  
-global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes indirect_subsidies health education educfees
+global comp_list 					SSC direct_taxes pensions direct_transfers indirect_taxes indirect_subsidies health education // educfees
 
 	
 	*Pre-simulation stage (needs to be run only once to get the input data)

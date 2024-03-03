@@ -204,8 +204,9 @@
 		*egen health = rowtotal(hlt_outp_in hlt_hosp_in)
 		*egen education = rowtotal(edu_prim_in edu_seco_in edu_tert_in)
 
-		keep hh_id p_id ${health} ${education} ${educfees} 
-		mvencode ${health} ${education} ${educfees}, mv(0) override 
+		keep hh_id p_id ${health} ${education} // ${educfees} 
+		//mvencode ${health} ${education} ${educfees}, mv(0) override 
+		mvencode ${health} ${education} , mv(0) override 
 
 		isid hh_id p_id
 		save "${data}\02.intermediate\Example_FiscalSim_inkind_transfers_data.dta", replace

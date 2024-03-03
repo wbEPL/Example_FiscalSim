@@ -63,7 +63,7 @@ label variable indirect_subsidies "Indirect subsidies"
 
 label variable health "In-kind health benefits"
 label variable education "In-kind education benefits (net)"
-label variable educfees "In-kind education fees"
+//label variable educfees "In-kind education fees"
 
 label variable net_market_income "Net market income"
 label variable market_pens_income "Market income plus pensions"
